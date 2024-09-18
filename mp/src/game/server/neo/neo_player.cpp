@@ -1868,9 +1868,12 @@ bool CNEO_Player::Weapon_Switch( CBaseCombatWeapon *pWeapon,
 {
 	ShowCrosshair(false);
 	Weapon_SetZoom(false);
+	UpdateMuzzleFlashProperties(pWeapon);
 
 	return BaseClass::Weapon_Switch(pWeapon, viewmodelindex);
 }
+
+
 
 //-----------------------------------------------------------------------------
 // Purpose: Returns whether or not we can switch to the given weapon. Override 

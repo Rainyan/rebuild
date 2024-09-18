@@ -119,6 +119,8 @@ public:
 
 	void Weapon_SetZoom(const bool bZoomIn);
 
+	void UpdateMuzzleFlashProperties(CBaseCombatWeapon* pWeapon);
+
 	void SuperJump(void);
 
 	void RequestSetClass(int newClass);

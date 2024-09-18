@@ -18,6 +18,7 @@
 #include "neo_player.h"
 #endif
 
+#include "neo_predicted_viewmodel_muzzleflash.h"
 #include "neo_playeranimstate.h"
 #include "convar.h"
 
@@ -25,6 +26,12 @@
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
+
+#ifdef CLIENT_DLL
+#ifndef CNEO_Player
+#define CNEO_Player C_NEO_Player
+#endif
+#endif
 
 ConVar cl_autoreload_when_empty("cl_autoreload_when_empty", "1", FCVAR_USERINFO | FCVAR_ARCHIVE,
 	"Automatically start reloading when the active weapon becomes empty.",
@@ -171,4 +178,61 @@ void KillerLineStr(char* killByLine, const int killByLineMax,
 	static constexpr float FOV_AIM_OFFSET_FALLBACK = 30.0f;
 	auto *neoWep = dynamic_cast<CNEOBaseCombatWeapon *>(wep);
 	return (neoWep) ? neoWep->GetWpnData().iAimFOV : fovDef - FOV_AIM_OFFSET_FALLBACK;
+}
+
+void CNEO_Player::UpdateMuzzleFlashProperties(CBaseCombatWeapon* pWeapon)
+{
+	const auto* neoWep = static_cast<CNEOBaseCombatWeapon*>(pWeapon);
+	if (!neoWep)
+		return;
+
+	auto* neoViewModelMuzzleflash = static_cast<CNEOPredictedViewModelMuzzleFlash*>(GetViewModel(MUZZLE_FLASH_VIEW_MODEL_INDEX));
+	if (!neoViewModelMuzzleflash)
+		return;
+
+	const auto neoWepBits = neoWep->GetNeoWepBits();
+	if (neoWepBits & (NEO_WEP_THROWABLE | NEO_WEP_GHOST | NEO_WEP_KNIFE | NEO_WEP_SUPPRESSED))
+	{
+		neoViewModelMuzzleflash->m_bActive = false;
+	}
+	else if (neoWepBits & (NEO_WEP_PZ | NEO_WEP_TACHI | NEO_WEP_KYLA))
+	{
+		neoViewModelMuzzleflash->m_bActive = true;
+		neoViewModelMuzzleflash->m_nSkin = 1;
+		neoViewModelMuzzleflash->m_iAngleZ = 0;
+		neoViewModelMuzzleflash->m_iAngleZIncrement = -100;
+		neoViewModelMuzzleflash->SetModelScale(0.75);
+	}
+    else if (neoWepBits & NEO_WEP_SUPA7)
+	{
+		neoViewModelMuzzleflash->m_bActive = true;
+		neoViewModelMuzzleflash->m_nSkin = 1;
+		neoViewModelMuzzleflash->m_iAngleZ = 0;
+		neoViewModelMuzzleflash->m_iAngleZIncrement = -90;
+		neoViewModelMuzzleflash->SetModelScale(2);
+	}
+	else if (neoWepBits & (NEO_WEP_SRM | NEO_WEP_JITTE))
+	{
+		neoViewModelMuzzleflash->m_bActive = true;
+		neoViewModelMuzzleflash->m_nSkin = 0;
+		neoViewModelMuzzleflash->m_iAngleZ = 0;
+		neoViewModelMuzzleflash->m_iAngleZIncrement = -90;
+		neoViewModelMuzzleflash->SetModelScale(0.75);
+	}
+	else if (neoWepBits & (NEO_WEP_MX | NEO_WEP_AA13))
+	{
+		neoViewModelMuzzleflash->m_bActive = true;
+		neoViewModelMuzzleflash->m_nSkin = 0;
+		neoViewModelMuzzleflash->m_iAngleZ = 0;
+		neoViewModelMuzzleflash->m_iAngleZIncrement = -100;
+		neoViewModelMuzzleflash->SetModelScale(0.6);
+	}
+	else
+	{
+		neoViewModelMuzzleflash->m_bActive = true;
+		neoViewModelMuzzleflash->m_nSkin = 0;
+		neoViewModelMuzzleflash->m_iAngleZ = 0;
+		neoViewModelMuzzleflash->m_iAngleZIncrement = -90;
+		neoViewModelMuzzleflash->SetModelScale(0.75);
+	}
 }

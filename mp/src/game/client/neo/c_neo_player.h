@@ -32,6 +32,7 @@ public:
 	virtual void AddEntity( void );
 
 	virtual void PreDataUpdate(DataUpdateType_t updateType) OVERRIDE;
+	virtual void FireGameEvent(IGameEvent *event) override;
 
 	// Should this object cast shadows?
 	virtual ShadowType_t		ShadowCastType( void );
@@ -139,8 +140,10 @@ public:
 
 	void Weapon_AimToggle(C_NEOBaseCombatWeapon *pNeoWep, const NeoWeponAimToggleE toggleType);
 	void Weapon_SetZoom(const bool bZoomIn);
-
 	void Weapon_Drop(C_NEOBaseCombatWeapon *pWeapon);
+	virtual bool Weapon_Switch(CBaseCombatWeapon *pWeapon, int viewmodelindex = 0) override;
+
+	void UpdateMuzzleFlashProperties(CBaseCombatWeapon* pWeapon);
 
 	C_NEOPredictedViewModel *GetNEOViewModel() { return static_cast<C_NEOPredictedViewModel*>(GetViewModel()); }
 

@@ -443,6 +443,8 @@ C_NEO_Player::C_NEO_Player()
 
 	memset(m_szNeoNameWDupeIdx, 0, sizeof(m_szNeoNameWDupeIdx));
 	m_szNameDupePos = 0;
+
+	ListenForGameEvent("player_death");
 }
 
 C_NEO_Player::~C_NEO_Player()
@@ -1264,6 +1266,12 @@ void C_NEO_Player::Weapon_Drop(C_NEOBaseCombatWeapon *pWeapon)
 	}
 }
 
+bool C_NEO_Player::Weapon_Switch(C_BaseCombatWeapon *pWeapon, int viewmodelindex)
+{
+	UpdateMuzzleFlashProperties(pWeapon);
+	return BaseClass::Weapon_Switch(pWeapon, viewmodelindex);
+}
+
 void C_NEO_Player::StartSprinting(void)
 {
 	if (m_HL2Local.m_flSuitPower < SPRINT_START_MIN)
@@ -1547,6 +1555,19 @@ void C_NEO_Player::PreDataUpdate(DataUpdateType_t updateType)
 	}
 
 	BaseClass::PreDataUpdate(updateType);
+}
+
+void C_NEO_Player::FireGameEvent(IGameEvent *event)
+{
+	if (FStrEq(event->GetName(), "player_spawn"))
+	{
+		if (event->GetInt("userid") == GetUserID())
+		{
+			UpdateMuzzleFlashProperties(GetActiveWeapon());
+		}
+	}
+
+	BaseClass::FireGameEvent(event);
 }
 
 void C_NEO_Player::SetAnimation(PLAYER_ANIM playerAnim)
