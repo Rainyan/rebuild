@@ -6,6 +6,77 @@ on:
   workflow_dispatch:
 
 jobs:
+  build-shaders:
+    name: Build Shaders
+    needs: pack-resources
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - uses: actions/download-artifact@v4
+      id: resources
+      with:
+        pattern: "neo-*-*-resources"
+        path: "./resources"
+    
+    - name: Download resources artifact
+      run: |
+        echo "${{ steps.resources.outputs.download-path }}/*"
+        Set-Location -Path "${{ steps.resources.outputs.download-path }}/*"
+        # Robocopy returns exit code 1 for "All files were copied successfully.", so we have to manually handle it here
+        robocopy .\neo "${{ github.workspace }}/mp/game" /move /e /j; if ($lastexitcode -ne 1) { $global:LASTEXITCODE = $null }
+    
+    - name: Set env vars for shader build scripts
+      shell: bash
+      run : |
+        SDKDIR="C:\SDK2013"
+        SDKBINDIR="$SDKDIR\bin"
+        echo "SDKDIR=$SDKDIR" >> "$GITHUB_ENV"
+        echo "SDKBINDIR=$SDKBINDIR" >> "$GITHUB_ENV"
+
+    - name: Setup Perl
+      uses: shogo82148/actions-setup-perl@v1
+      with:
+        distribution: strawberry
+
+    - name: Install Perl dependencies
+      shell: cmd
+      run: perl -MCPAN -e "install String::CRC32"
+
+    - uses: ilammy/msvc-dev-cmd@v1
+      with:
+        arch: x86
+
+    - name: Setup steamcmd
+      uses: CyberAndrii/setup-steamcmd@v1
+
+    - name: Install Source SDK Base 2013 Multiplayer
+      run: >
+        steamcmd
+        +force_install_dir "${{ env.SDKDIR }}"
+        +login ${{ secrets.STEAM_USERNAME }} ${{ secrets.STEAM_PASSWORD }}
+        +app_update 243750 validate
+        +quit
+
+    - name: Build shaders
+      working-directory: ${{ github.workspace }}/mp/src/materialsystem/stdshaders
+      shell: cmd
+      run: .\buildhl2mpshaders.bat
+
+    - name: Get shader artifact name
+      working-directory: ${{ steps.resources.outputs.download-path }}
+      shell: bash
+      run: >
+        echo "artifact=$(find . -regex '\.\/neo-\w*-\w*-resources' |
+        grep -o 'neo-.*[^-resources]')-shaders"
+        >> "$GITHUB_ENV"
+
+    - name: Upload shaders
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ env.artifact }}
+        path: ${{ github.workspace }}/mp/game/neo/shaders
+
   build:
     name: ${{ matrix.platform.display_name }} ${{ matrix.preset_build_type.display_name }}
 
@@ -42,13 +113,13 @@ jobs:
         echo "install_dir=$install_dir" >> "$GITHUB_ENV"
         echo "preset_name=$preset_name" >> "$GITHUB_ENV"
 
-    - name: Install packages
+    - name: Install packages (Linux)
       if: ${{ matrix.platform.os == 'ubuntu-latest' }}
       run: |
         sudo apt update
         sudo apt install gcc-multilib g++-multilib ninja-build -y
 
-    - name: Install packages
+    - name: Install packages (Windows)
       if: ${{ matrix.platform.os == 'windows-latest' }}
       run: choco install -y ninja
 
@@ -105,7 +176,7 @@ jobs:
 
     # Artifacts
 
-    - name: Get artifact names
+    - name: Get library artifact names
       working-directory: ${{ env.install_dir }}
       run: |
         echo "libraries=$(find . -regex '\.\/neo-\w*-\w*-libraries-\w*-\w*' -printf '%f')" >> "$GITHUB_ENV"
@@ -182,6 +253,13 @@ jobs:
     - name: Install resources
       run: cmake --install ${{ env.build_dir }}
 
+    - name: Cleanup stale shaders
+      working-directory: ${{ env.install_dir }}
+      shell: pwsh
+      run: |
+        Set-Location -Path .\neo-*-*-resources\neo
+        Remove-Item -Recurse -Path .\shaders
+
     - name: Get artifact name
       working-directory: ${{ env.install_dir }}
       run: echo "resources=$(echo neo-*-*-resources)" >> "$GITHUB_ENV"
@@ -194,7 +272,7 @@ jobs:
   upload-release:
     name: Automatic Release Upload
 
-    needs: [build, pack-resources]
+    needs: [build, build-shaders]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master'
     permissions:

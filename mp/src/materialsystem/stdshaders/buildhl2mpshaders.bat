@@ -8,8 +8,10 @@ rem == Set the absolute path to your mod's game directory here ==
 set GAMEDIR=%cd%\..\..\..\game\neo
 
 rem == Set the relative or absolute path to Source SDK Base 2013 Singleplayer\bin ==
-rem set SDKBINDIR=C:\SteamBetaLibrary\SteamApps\common\Source SDK Base 2013 Singleplayer\bin
-set SDKBINDIR=E:\SteamStuff\steamapps\common\Source SDK Base 2013 Multiplayer\bin
+rem If you don't want to set up an environment variable, you may manually adjust the path here.
+If Not Defined SDKBINDIR (
+	set SDKBINDIR="C:\Program Files (x86)\Steam\steamapps\common\Source SDK Base 2013 Multiplayer\bin"
+)
 
 rem ==  Set the Path to your mod's root source code ==
 rem This should already be correct, accepts relative paths only!

@@ -63,7 +63,7 @@ echo "       gameDir is where gameinfo.txt is (where it will store the compiled 
 echo "       sourceDir is where the source code is (where it will find scripts and compilers)."
 echo "ex   : buildshaders myshaders"
 echo "ex   : buildshaders myshaders -game c:\steam\steamapps\sourcemods\mymod -source c:\mymod\src"
-goto :end
+goto :endWithErr
 
 REM ****************
 REM MOD ARGS - look for -game or the vproject environment variable
@@ -91,18 +91,17 @@ echo -
 echo Error: "%~3" is not a valid game directory.
 echo (The -game directory must have a gameinfo.txt file)
 echo -
-goto end
+goto endWithErr
 
 :NoSourceDirSpecified
 echo ERROR: If you specify -game on the command line, you must specify -source.
 goto usage
-goto end
 
 :NoShaderCompile
 echo -
 echo - ERROR: shadercompile.exe doesn't exist in %SDKBINDIR%
 echo -
-goto end
+goto endWithErr
 
 REM ****************
 REM BUILD SHADERS
@@ -128,6 +127,7 @@ if exist vcslist.txt del /f /q vcslist.txt
 REM ****************
 REM Generate a makefile for the shader project
 REM ****************
+echo Inputbase: %inputbase%
 perl "%SrcDirBase%\devtools\bin\updateshaders.pl" -source "%SrcDirBase%" %inputbase%
 
 
@@ -180,7 +180,7 @@ set shader_path_cd=%cd%
 if exist "filelist.txt" if exist "uniquefilestocopy.txt" if not "%dynamic_shaders%" == "1" (
 	echo Running distributed shader compilation...
 
-	cd /D %ChangeToDir%
+	cd /D "%ChangeToDir%"
 	echo %shadercompilecommand% %SDKArgs% -shaderpath "%shader_path_cd:/=\%" -allowdebug
 	%shadercompilecommand% %SDKArgs% -shaderpath "%shader_path_cd:/=\%" -allowdebug
 	cd /D %shader_path_cd%
@@ -197,6 +197,9 @@ if not exist "%targetdir%" md "%targetdir%"
 if not "%targetdir%"=="%shaderDir%" xcopy %shaderDir%\*.* "%targetdir%" /e /y
 )
 goto end
+
+:endWithErr
+exit /B 1
 
 REM ****************
 REM END
