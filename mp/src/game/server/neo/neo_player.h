@@ -16,6 +16,27 @@ class INEOPlayerAnimState;
 
 #include "neo_player_shared.h"
 
+enum EDmgMenuSelect
+{
+	DAMAGE_MENU_SELECT_DISMISS = 1,
+	DAMAGE_MENU_SELECT_NEXTPAGE = 2,
+	DAMAGE_MENU_SELECT_DONOTSHOW = 9,
+};
+
+enum EPauseMenuSelect
+{
+	PAUSE_MENU_SELECT_SHORT = 1,
+	PAUSE_MENU_SELECT_LONG = 2,
+	PAUSE_MENU_SELECT_DISMISS = 3,
+};
+
+enum EMenuSelectType
+{
+	MENU_SELECT_TYPE_NONE = 0,
+	MENU_SELECT_TYPE_DMG,
+	MENU_SELECT_TYPE_PAUSE,
+};
+
 class CNEO_Player : public CHL2MP_Player
 {
 public:
@@ -105,6 +126,7 @@ public:
 
 	void Weapon_AimToggle(CNEOBaseCombatWeapon *pWep, const NeoWeponAimToggleE toggleType);
 
+	const char *InternalGetNeoPlayerName(const CNEO_Player *viewFrom = nullptr) const;
 	// "neo_name" if available otherwise "name"
 	// Set "viewFrom" if fetching the name in the view of another player
 	const char *GetNeoPlayerName(const CNEO_Player *viewFrom = nullptr) const;
@@ -112,6 +134,7 @@ public:
 	const char *GetNeoPlayerNameDirect() const;
 	void SetNeoPlayerName(const char *newNeoName);
 	void SetClientWantNeoName(const bool b);
+	const char *GetNeoClantag() const;
 
 	void Lean(void);
 	void SoftSuicide(void);
@@ -227,6 +250,7 @@ public:
 
 	CNetworkVar(unsigned char, m_NeoFlags);
 	CNetworkString(m_szNeoName, MAX_PLAYER_NAME_LENGTH);
+	CNetworkString(m_szNeoClantag, NEO_MAX_CLANTAG_LENGTH);
 	CNetworkVar(int, m_szNameDupePos);
 
 	// NEO NOTE (nullsystem): As dumb as client sets -> server -> client it may sound,
@@ -238,6 +262,9 @@ public:
 	int m_iTeamDamageInflicted = 0;
 	int m_iTeamKillsInflicted = 0;
 	bool m_bIsPendingTKKick = false; // To not spam the kickid ConCommand
+	bool m_bDoNotShowDmgInfoMenu = false;
+	EMenuSelectType m_eMenuSelectType = MENU_SELECT_TYPE_NONE;
+	bool m_bClientStreamermode = false;
 
 private:
 	bool m_bFirstDeathTick;
