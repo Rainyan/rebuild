@@ -1228,8 +1228,8 @@ bool CNEO_Player::HandleCommand_JoinTeam( int team )
 			}
 		}
 		UTIL_ClientPrintFilter(filterNonStreamers, HUD_PRINTTALK,
-							   "%s1 joined team %s2\n", GetNeoPlayerName(), GetTeam()->GetName());
-		UTIL_ClientPrintFilter(filterStreamers, HUD_PRINTTALK, "Player joined team %s1\n", GetTeam()->GetName());
+							   "#Playername_joinedteam", GetNeoPlayerName(), GetTeam()->GetName());
+		UTIL_ClientPrintFilter(filterStreamers, HUD_PRINTTALK, "#Player_joinedteam", GetTeam()->GetName());
 	}
 
 	return isAllowedToJoin;
@@ -2252,7 +2252,7 @@ bool CNEO_Player::ProcessTeamSwitchRequest(int iTeam)
 		{
 			char szWaitTime[5];
 			V_sprintf_safe(szWaitTime, "%i", MAX(1, RoundFloatToInt(m_flNextTeamChangeTime - gpGlobals->curtime)));
-			ClientPrint(this, HUD_PRINTTALK, "Please wait %s1 seconds before switching teams again.", szWaitTime);
+			ClientPrint(this, HUD_PRINTTALK, "#Teamswitch_wait", szWaitTime);
 			return false;
 		}
 	}
@@ -2304,7 +2304,7 @@ bool CNEO_Player::ProcessTeamSwitchRequest(int iTeam)
 			}
 			else if (!suicidePlayerIfAlive)
 			{
-				ClientPrint(this, HUD_PRINTCENTER, "You can't switch teams while you are alive.");
+				ClientPrint(this, HUD_PRINTCENTER, "#Teamswitch_alive");
 				return false;
 			}
 		}
@@ -2313,18 +2313,17 @@ bool CNEO_Player::ProcessTeamSwitchRequest(int iTeam)
 	}
 	else
 	{
-		// Client should not be able to reach this
-		Assert(false);
+		Assert(false); // Client should not be able to reach this
 
-#define SWITCH_FAIL_MSG "Team switch failed; unrecognized Neotokyo team specified."
-		ClientPrint(this, HUD_PRINTTALK, SWITCH_FAIL_MSG);
-		Warning(SWITCH_FAIL_MSG);
+		char szTeamInt[3]{0};
+		V_sprintf_safe(szTeamInt, "%d", iTeam);
+		ClientPrint(this, HUD_PRINTTALK, "#Teamswitch_fail", szTeamInt);
 
 		return false;
 	}
 
 	m_flNextTeamChangeTime = gpGlobals->curtime + sv_neo_change_threshold_interval.GetFloat();
-	
+
 	RemoveAllItems(true);
 	ShowCrosshair(false);
 

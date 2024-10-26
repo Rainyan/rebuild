@@ -26,8 +26,10 @@
 	#include "inetchannelinfo.h"
 	#include "neo_dm_spawn.h"
 	#include "neo_misc.h"
+	#include <vgui/ILocalize.h>
 
 extern ConVar weaponstay;
+extern vgui::ILocalize *g_pVGuiLocalize;
 #endif
 
 ConVar mp_neo_loopback_warmup_round("mp_neo_loopback_warmup_round", "0", FCVAR_REPLICATED, "Allow loopback server to do warmup rounds.", true, 0.0f, true, 1.0f);
@@ -1499,21 +1501,21 @@ void CNEORules::CheckChatCommand(CNEO_Player *pNeoCmdPlayer, const char *pSzChat
 
 	if (V_strcmp(pSzChat, "help") == 0)
 	{
-		char szHelpText[512];
-		V_sprintf_safe(szHelpText, "Available commands:\n%s%s",
-					   neo_sv_readyup_lobby.GetBool() ?
-						   "Ready up commands (only available while waiting for players):\n"
-						   ".ready - Ready up yourself\n"
-						   ".unready - Unready yourself\n"
-						   ".start - Override players amount restriction\n"
-						   ".readylist - List players that are not ready\n"
-						 : "",
-					   neo_sv_pausematch_enabled.GetBool() ?
-						   "Pause commands (only available during a match):\n"
-						   ".pause - Pause the match\n"
-						   ".unpause - Unpause the match\n"
-						 : "");
-		ClientPrint(pNeoCmdPlayer, HUD_PRINTTALK, szHelpText);
+		Assert(g_pVGuiLocalize);	// FIXME: we are hitting MAX_USER_MSG_DATA for localized strings; should just network the request to print the info,
+									// and store the actual print values client-side instead of networking it
+		wchar_t szBuf[63];
+		static_assert(sizeof(szBuf) <= MAX_USER_MSG_DATA);
+		g_pVGuiLocalize->ConstructString(szBuf, sizeof(szBuf),
+			g_pVGuiLocalize->Find("#Chatcmd_help"),
+			2,
+			g_pVGuiLocalize->Find("#Chatcmd_help_lobby"),
+			g_pVGuiLocalize->Find("#Chatcmd_help_pause"));
+
+		char ansiString[ARRAYSIZE(szBuf) * sizeof(szBuf[0]) / sizeof(char)];
+		static_assert(sizeof(ansiString) == sizeof(szBuf));
+		g_pVGuiLocalize->ConvertUnicodeToANSI(szBuf, ansiString, sizeof(ansiString));
+		ClientPrint(pNeoCmdPlayer, HUD_PRINTTALK, "%s1", ansiString);
+
 		return;
 	}
 

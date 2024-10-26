@@ -50,7 +50,7 @@ void FinishClientPutInServer( CNEO_Player *pPlayer )
 				const CNEORules::RestoreInfo &restoreInfo = restoredInfos.Element(hdl);
 				pPlayer->m_iXP.Set(restoreInfo.xp);
 				pPlayer->IncrementDeathCount(restoreInfo.deaths);
-				ClientPrint(pPlayer, HUD_PRINTTALK, "Your XP and death count have been restored.\n");
+				ClientPrint(pPlayer, HUD_PRINTTALK, "#Score_restored");
 			}
 		}
 	}
@@ -77,7 +77,7 @@ void FinishClientPutInServer( CNEO_Player *pPlayer )
 
 	if ( NEORules()->IsTeamplay() == true )
 	{
-		ClientPrint( pPlayer, HUD_PRINTTALK, "You are on team %s1\n", pPlayer->GetTeam()->GetName() );
+		ClientPrint( pPlayer, HUD_PRINTTALK, "#On_team", pPlayer->GetTeam()->GetName() );
 	}
 
 	INetChannelInfo *nci = engine->GetPlayerNetInfo(pPlayer->entindex());
