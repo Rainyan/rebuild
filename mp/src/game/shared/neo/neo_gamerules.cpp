@@ -1502,7 +1502,8 @@ void CNEORules::CheckChatCommand(CNEO_Player *pNeoCmdPlayer, const char *pSzChat
 	if (V_strcmp(pSzChat, "help") == 0)
 	{
 		Assert(g_pVGuiLocalize);	// FIXME: we are hitting MAX_USER_MSG_DATA for localized strings; should just network the request to print the info,
-									// and store the actual print values client-side instead of networking it
+									// and store the actual print values client-side instead of networking it.
+									// Or perhaps more preferrably - handle these chat tokens fully clientside - it's not really required at all for the server to process it.
 		wchar_t szBuf[63];
 		static_assert(sizeof(szBuf) <= MAX_USER_MSG_DATA);
 		g_pVGuiLocalize->ConstructString(szBuf, sizeof(szBuf),
