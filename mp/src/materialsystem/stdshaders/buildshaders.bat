@@ -63,7 +63,7 @@ echo "       gameDir is where gameinfo.txt is (where it will store the compiled 
 echo "       sourceDir is where the source code is (where it will find scripts and compilers)."
 echo "ex   : buildshaders myshaders"
 echo "ex   : buildshaders myshaders -game c:\steam\steamapps\sourcemods\mymod -source c:\mymod\src"
-goto :endWithErr
+goto endWithErr
 
 REM ****************
 REM MOD ARGS - look for -game or the vproject environment variable
