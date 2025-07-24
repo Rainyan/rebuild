@@ -223,7 +223,7 @@ public:
 
 	// NEO NOTE (Rain): For testing freezetime, use IsInFreezetime instead;
 	// we have another cheat flag for overriding the freeze, so a naive bitwise AND test is insufficient!
-	unsigned char m_NeoFlags;
+	neoFlags_t m_NeoFlags;
 
 private:
 	bool m_bFirstAliveTick;

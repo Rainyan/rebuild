@@ -207,11 +207,14 @@ enum NeoStar {
 };
 #define NEO_DEFAULT_STAR STAR_ALPHA
 
+typedef unsigned char neoFlags_t;
 // Implemented by CNEOPlayer::m_fNeoFlags.
 // Rolling our own because Source FL_ flags already reserve all 32 bits,
 // and extending the type would require a larger refactor.
-#define NEO_FL_FREEZETIME (1 << 0) // Freeze player movement, but allow looking around.
-#define NEO_FL_IGNORE_FREEZETIME (1 << 1) // Cheat command. Allows the player to move even if frozen during the freezetime.
+enum NeoFlags : neoFlags_t {
+	NEO_FL_FREEZETIME = (1 << 0), // Freeze player movement, but allow looking around.
+	NEO_FL_IGNORE_FREEZETIME = (1 << 1), // Cheat command. Allows the player to move even if frozen during the freezetime.
+};
 
 #if defined(CLIENT_DLL) && !defined(CNEOBaseCombatWeapon)
 #define CNEOBaseCombatWeapon C_NEOBaseCombatWeapon

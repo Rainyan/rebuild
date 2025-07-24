@@ -265,7 +265,7 @@ public:
 
 	// NEO NOTE (Rain): For testing freezetime, use IsInFreezetime instead;
 	// we have another cheat flag for overriding the freeze, so a naive bitwise AND test is insufficient!
-	CNetworkVar(unsigned char, m_NeoFlags);
+	CNetworkVar(neoFlags_t, m_NeoFlags);
 	CNetworkString(m_szNeoName, MAX_PLAYER_NAME_LENGTH);
 	CNetworkString(m_szNeoClantag, NEO_MAX_CLANTAG_LENGTH);
 	CNetworkString(m_szNeoCrosshair, NEO_XHAIR_SEQMAX);
