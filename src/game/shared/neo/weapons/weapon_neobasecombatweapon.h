@@ -210,16 +210,8 @@ public:
 
 	bool ShootingIsPrevented(void) const
 	{
-		auto owner = static_cast<CNEO_Player*>(GetOwner());
-		if (!owner)
-		{
-			return true;
-		}
-		if (owner->GetNeoFlags() & NEO_FL_FREEZETIME)
-		{
-			return true;
-		}
-		return false;
+		const auto owner = static_cast<CNEO_Player*>(GetOwner());
+		return !owner || owner->IsInFreezetime();
 	}
 
 	float GetLastAttackTime(void) const { return m_flLastAttackTime; }

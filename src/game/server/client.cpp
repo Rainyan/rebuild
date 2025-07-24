@@ -1240,6 +1240,31 @@ void CC_Player_NoClip( void )
 	}
 }
 
+#ifdef NEO
+void CC_Player_NoFreeze()
+{
+	if (!sv_cheats->GetBool())
+		return;
+
+	auto* pPlayer = ToNEOPlayer(UTIL_GetCommandClient());
+	if (!pPlayer)
+		return;
+
+	if (pPlayer->m_NeoFlags & NEO_FL_IGNORE_FREEZETIME)
+	{
+		pPlayer->RemoveNeoFlag(NEO_FL_IGNORE_FREEZETIME);
+		ClientPrint(pPlayer, HUD_PRINTCONSOLE, "nofreeze OFF\n");
+	}
+	else
+	{
+		pPlayer->AddNeoFlag(NEO_FL_IGNORE_FREEZETIME);
+		ClientPrint(pPlayer, HUD_PRINTCONSOLE, "nofreeze ON\n");
+	}
+}
+
+static ConCommand nofreeze("nofreeze", CC_Player_NoFreeze, "Toggle. Player becomes unaffected by the pre-round freezetime.", FCVAR_CHEAT);
+#endif
+
 static ConCommand noclip("noclip", CC_Player_NoClip, "Toggle. Player becomes non-solid and flies.", FCVAR_CHEAT);
 
 

@@ -1075,7 +1075,7 @@ void CGameMovement::CheckParameters( void )
 	if (player->GetFlags() & FL_FROZEN ||
 		player->GetFlags() & FL_ONTRAIN ||
 		IsDead() ||
-		static_cast<CNEO_Player*>(player)->GetNeoFlags() & NEO_FL_FREEZETIME)
+		static_cast<CNEO_Player*>(player)->IsInFreezetime())
 #else
 	if (player->GetFlags() & FL_FROZEN ||
 		player->GetFlags() & FL_ONTRAIN ||

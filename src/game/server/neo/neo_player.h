@@ -100,15 +100,20 @@ public:
 
 	void AddNeoFlag(int flags)
 	{
-		m_NeoFlags.GetForModify() = (GetNeoFlags() | flags);
+		m_NeoFlags.Set(m_NeoFlags | flags);
 	}
 
 	void RemoveNeoFlag(int flags)
 	{
-		m_NeoFlags.GetForModify() = (GetNeoFlags() & ~flags);
+		m_NeoFlags.Set(m_NeoFlags & ~flags);
 	}
 
-	int GetNeoFlags() const { return m_NeoFlags.Get(); }
+	// Whether the player is currently frozen in the pre-round freezetime.
+	inline bool IsInFreezetime() const
+	{
+		return (m_NeoFlags.Get() & NEO_FL_FREEZETIME) &&
+			(!(m_NeoFlags.Get() & NEO_FL_IGNORE_FREEZETIME));
+	}
 
 	void GiveLoadoutWeapon(void);
 	void SetPlayerTeamModel(void);
@@ -258,6 +263,8 @@ public:
 	CNetworkArray(float, m_rfAttackersAccumlator, (MAX_PLAYERS + 1));
 	CNetworkArray(int, m_rfAttackersHits, (MAX_PLAYERS + 1));
 
+	// NEO NOTE (Rain): For testing freezetime, use IsInFreezetime instead;
+	// we have another cheat flag for overriding the freeze, so a naive bitwise AND test is insufficient!
 	CNetworkVar(unsigned char, m_NeoFlags);
 	CNetworkString(m_szNeoName, MAX_PLAYER_NAME_LENGTH);
 	CNetworkString(m_szNeoClantag, NEO_MAX_CLANTAG_LENGTH);

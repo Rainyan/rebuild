@@ -211,6 +211,7 @@ enum NeoStar {
 // Rolling our own because Source FL_ flags already reserve all 32 bits,
 // and extending the type would require a larger refactor.
 #define NEO_FL_FREEZETIME (1 << 1) // Freeze player movement, but allow looking around.
+#define NEO_FL_IGNORE_FREEZETIME (1 << 2) // Cheat command. Allows the player to move even if frozen during the freezetime.
 
 #if defined(CLIENT_DLL) && !defined(CNEOBaseCombatWeapon)
 #define CNEOBaseCombatWeapon C_NEOBaseCombatWeapon

@@ -3898,7 +3898,7 @@ void CBasePlayer::PlayerRunCommand(CUserCmd *ucmd, IMoveHelper *moveHelper)
 		}
 	}
 
-	const bool bPlayerInFreezeTime = static_cast<CNEO_Player*>(this)->GetNeoFlags() & NEO_FL_FREEZETIME;
+	const bool bPlayerInFreezeTime = static_cast<CNEO_Player*>(this)->IsInFreezetime();
 	if (originalCheck || bPlayerInFreezeTime)
 #else
 	if (originalCheck)

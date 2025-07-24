@@ -560,7 +560,7 @@ void CBasePlayer::UpdateStepSound( surfacedata_t *psurface, const Vector &vecOri
 		return;
 	
 #ifdef NEO
-	if (static_cast<CNEO_Player*>(this)->GetNeoFlags() & NEO_FL_FREEZETIME)
+	if (static_cast<CNEO_Player*>(this)->IsInFreezetime())
 		return;
 #endif
 

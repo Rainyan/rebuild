@@ -1118,7 +1118,7 @@ void C_HL2MP_Player::StopWalking( void )
 void C_HL2MP_Player::ItemPreFrame( void )
 {
 #ifdef NEO
-	if (static_cast<C_NEO_Player*>(this)->GetNeoFlags() & FL_FROZEN)
+	if (static_cast<C_NEO_Player*>(this)->IsInFreezetime())
 	{
 		return;
 	}
@@ -1141,7 +1141,7 @@ void C_HL2MP_Player::ItemPreFrame( void )
 void C_HL2MP_Player::ItemPostFrame( void )
 {
 #ifdef NEO
-	if (static_cast<C_NEO_Player*>(this)->GetNeoFlags() & FL_FROZEN)
+	if (static_cast<C_NEO_Player*>(this)->IsInFreezetime())
 	{
 		return;
 	}

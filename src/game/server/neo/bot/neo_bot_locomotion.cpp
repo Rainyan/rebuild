@@ -10,7 +10,7 @@ extern ConVar falldamage;
 void CNEOBotLocomotion::Update( void )
 {
 	CNEOBot* me = ToNEOBot( GetBot()->GetEntity() );
-	if ( !me || me->GetNeoFlags() & NEO_FL_FREEZETIME)
+	if ( !me || me->IsInFreezetime())
 	{
 		return;
 	}

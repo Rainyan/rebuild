@@ -87,7 +87,7 @@ void CWeaponKnife::ItemPostFrame()
 void CWeaponKnife::PrimaryAttack()
 {
 	auto owner = static_cast<CNEO_Player*>(GetOwner());
-	if (owner && owner->GetNeoFlags() & NEO_FL_FREEZETIME)
+	if (owner && owner->IsInFreezetime())
 	{
 		return;
 	}
