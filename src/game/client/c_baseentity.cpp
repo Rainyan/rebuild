@@ -1001,6 +1001,12 @@ void C_BaseEntity::Clear( void )
 	m_ShadowHandles.Purge();
 	m_ShadowHandles.AddToTail(CLIENTSHADOW_INVALID_HANDLE);
 	Assert(m_ShadowHandles.Count() == 1);
+
+	m_ShadowAlphaFractions.Purge();
+	m_ShadowAlphaFractions.AddToTail(1);
+	Assert(m_ShadowAlphaFractions.Count() == 1);
+
+	Assert(m_ShadowHandles.Count() == m_ShadowAlphaFractions.Count());
 #else
 	m_ShadowHandle = CLIENTSHADOW_INVALID_HANDLE;
 #endif
@@ -3575,7 +3581,8 @@ void C_BaseEntity::ComputeFxBlend( void )
 			Assert(false);
 			break;
 		}
-		g_pClientShadowMgr->SetFalloffBias(shadow, (255 / nShadows - m_nRenderFXBlend));
+		const int alpha = int(255 * m_ShadowAlphaFractions[i]);
+		g_pClientShadowMgr->SetFalloffBias(shadow, (alpha / nShadows - m_nRenderFXBlend));
 	}
 #else
 	if ( m_ShadowHandle != CLIENTSHADOW_INVALID_HANDLE )
@@ -4012,6 +4019,7 @@ void C_BaseEntity::CreateShadow()
 				if (shadowType == SHADOWS_RENDER_TO_TEXTURE_DYNAMIC)
 					flags |= SHADOW_FLAGS_ANIMATING_SOURCE;
 				m_ShadowHandles[i] = g_pClientShadowMgr->CreateShadow(GetClientHandle(), flags);
+				m_ShadowAlphaFractions[i] = 1.0;
 			}
 		}
 #else
@@ -4045,6 +4053,7 @@ void C_BaseEntity::DestroyShadow()
 		{
 			g_pClientShadowMgr->DestroyShadow(shadow);
 			m_ShadowHandles[i] = CLIENTSHADOW_INVALID_HANDLE;
+			m_ShadowAlphaFractions[i] = 0;
 		}
 	}
 #else

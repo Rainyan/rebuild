@@ -180,8 +180,14 @@ void CWorldLights::LevelInitPreEntity()
 }
 
 #ifdef NEO
-// Find the nth brightest light source at a point, zero-indexed
-bool CWorldLights::GetNthBrightestLightSource(int n, const Vector& vecPosition, Vector& vecLightPos, Vector& vecLightBrightness)
+// Finds the nth brightest light source at a point, zero-indexed.
+// Returns boolean of whether such a light source was found.
+// Passes the light position, brightness, and relative brightness by reference.
+// "relativeBrightness" is the fraction of the output vecLightBrightness's squared magnitude
+// in relation to the (n-1)th squared magnitude, or 1.0 if n equals 0 or (n-1)th magnitude equals 0.
+// Out variable contents are indeterminate if the return value is false.
+bool CWorldLights::GetNthBrightestLightSource(int n, const Vector& vecPosition, Vector& vecLightPos, Vector& vecLightBrightness,
+	vec_t& relativeBrightness)
 #else
 //-----------------------------------------------------------------------------
 // Purpose: Find the brightest light source at a point
@@ -328,6 +334,18 @@ bool CWorldLights::GetBrightestLightSource(const Vector& vecPosition, Vector& ve
 	const auto& res = brightest.Element(n);
 	vecLightPos = res.first;
 	vecLightBrightness = res.second;
+
+	if (n == 0)
+	{
+		relativeBrightness = 1;
+	}
+	else
+	{
+		const auto& prev = brightest.Element(n - 1);
+		const auto prevLenSqr = prev.second.LengthSqr();
+		relativeBrightness = prevLenSqr ? res.second.LengthSqr() / prevLenSqr : 1;
+	}
+	Assert(relativeBrightness >= 0 && relativeBrightness <= 1);
 #endif
 	return !vecLightBrightness.IsZero();
 }

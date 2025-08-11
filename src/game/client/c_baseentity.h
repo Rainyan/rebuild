@@ -1580,10 +1580,16 @@ private:
 	// Shadow data
 #ifdef NEO
 	CUtlVector<ClientShadowHandle_t> m_ShadowHandles;
+	CUtlVector<vec_t> m_ShadowAlphaFractions;
+	friend class CClientShadowMgr;
 protected:
 	CUtlVector<ClientShadowHandle_t>& ShadowHandles()
 	{
 		return m_ShadowHandles;
+	}
+	CUtlVector<vec_t>& ShadowAlphaFractions()
+	{
+		return m_ShadowAlphaFractions;
 	}
 private:
 #else

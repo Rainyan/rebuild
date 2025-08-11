@@ -4421,7 +4421,8 @@ void CClientShadowMgr::UpdateShadowDirectionFromLocalLightSource(ClientShadowHan
 			}
 		}
 
-		if (g_pWorldLights->GetNthBrightestLightSource(nthShadow, pRenderable->GetRenderOrigin(), lightPos, lightBrightness) == false
+		vec_t relativeBrightness;
+		if (!g_pWorldLights->GetNthBrightestLightSource(nthShadow, pRenderable->GetRenderOrigin(), lightPos, lightBrightness, relativeBrightness)
 			|| lightBrightness.LengthSqr() < flMinBrightnessSqr)
 #else
 		if (g_pWorldLights->GetBrightestLightSource(pRenderable->GetRenderOrigin(), lightPos, lightBrightness) == false || lightBrightness.LengthSqr() < flMinBrightnessSqr)
@@ -4430,6 +4431,14 @@ void CClientShadowMgr::UpdateShadowDirectionFromLocalLightSource(ClientShadowHan
 			// Didn't find a light source at all, use default shadow direction
 			// TODO: Could switch to using blobby shadow in this case
 			lightPos.Init(FLT_MAX, FLT_MAX, FLT_MAX);
+			if (pEnt)
+			{
+				pEnt->m_ShadowAlphaFractions[nthShadow] = 1;
+			}
+		}
+		else if (pEnt)
+		{
+			pEnt->m_ShadowAlphaFractions[nthShadow] = relativeBrightness;
 		}
 	}
 

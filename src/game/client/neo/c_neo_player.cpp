@@ -496,7 +496,9 @@ ConCommand vguicancel("vguicancel", &vguiCancel_Cb, "Cancel current vgui screen.
 C_NEO_Player::C_NEO_Player()
 {
 	ShadowHandles().AddToTail(CLIENTSHADOW_INVALID_HANDLE);
+	ShadowAlphaFractions().AddToTail(1);
 	Assert(ShadowHandles().Count() == 2);
+	Assert(ShadowAlphaFractions().Count() == ShadowHandles().Count());
 
 	SetPredictionEligible(true);
 
