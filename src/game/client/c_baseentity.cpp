@@ -3564,12 +3564,18 @@ void C_BaseEntity::ComputeFxBlend( void )
 
 	// Tell our shadow
 #ifdef NEO
-	for (int i = 0;; ++i)
+	const auto nShadows = ShadowHandles().Count();
+	for (int i = 0; i < nShadows; ++i)
 	{
 		auto shadow = GetShadowHandle(i);
-		if (!IsValidShadowHandle(shadow))
+		if (shadow == CLIENTSHADOW_INVALID_HANDLE)
+			continue;
+		if (shadow == CLIENTSHADOW_OUT_OF_RANGE)
+		{
+			Assert(false);
 			break;
-		g_pClientShadowMgr->SetFalloffBias(shadow, (255 - m_nRenderFXBlend));
+		}
+		g_pClientShadowMgr->SetFalloffBias(shadow, (255 / nShadows - m_nRenderFXBlend));
 	}
 #else
 	if ( m_ShadowHandle != CLIENTSHADOW_INVALID_HANDLE )
