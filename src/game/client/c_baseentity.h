@@ -1180,7 +1180,19 @@ public:
 	virtual ModelInstanceHandle_t GetModelInstance() { return m_ModelInstance; }
 	void SetModelInstance( ModelInstanceHandle_t hInstance) { m_ModelInstance = hInstance; }
 	bool SnatchModelInstance( C_BaseEntity * pToEntity );
+#ifdef NEO
+	virtual ClientShadowHandle_t GetShadowHandle(int i) const
+	{
+		if (i >= m_ShadowHandles.Count() || i < 0)
+		{
+			Assert(i >= 0);
+			return CLIENTSHADOW_OUT_OF_RANGE;
+		}
+		return m_ShadowHandles[i];
+	}
+#else
 	virtual ClientShadowHandle_t GetShadowHandle() const	{ return m_ShadowHandle; }
+#endif
 	virtual ClientRenderHandle_t&	RenderHandle();
 
 	void CreateModelInstance();
@@ -1566,7 +1578,17 @@ private:
 	ModelInstanceHandle_t			m_ModelInstance;
 
 	// Shadow data
+#ifdef NEO
+	CUtlVector<ClientShadowHandle_t> m_ShadowHandles;
+protected:
+	CUtlVector<ClientShadowHandle_t>& ShadowHandles()
+	{
+		return m_ShadowHandles;
+	}
+private:
+#else
 	ClientShadowHandle_t			m_ShadowHandle;
+#endif
 
 	// A random value used by material proxies for each model instance.
 	float							m_flProxyRandomValue;

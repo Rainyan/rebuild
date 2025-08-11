@@ -25,6 +25,10 @@
 #include "filesystem.h"
 #include "worldlight.h"
 
+#ifdef NEO
+#include <utility>
+#endif
+
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
@@ -175,13 +179,26 @@ void CWorldLights::LevelInitPreEntity()
 	DevMsg("CWorldLights: Load successful (%d lights at 0x%p)\n", m_nWorldLights, m_pWorldLights);
 }
 
+#ifdef NEO
+// Find the nth brightest light source at a point, zero-indexed
+bool CWorldLights::GetNthBrightestLightSource(int n, const Vector& vecPosition, Vector& vecLightPos, Vector& vecLightBrightness)
+#else
 //-----------------------------------------------------------------------------
 // Purpose: Find the brightest light source at a point
 //-----------------------------------------------------------------------------
 bool CWorldLights::GetBrightestLightSource(const Vector& vecPosition, Vector& vecLightPos, Vector& vecLightBrightness)
+#endif
 {
 	if (!m_nWorldLights || !m_pWorldLights)
 		return false;
+
+#ifdef NEO
+	if (n >= m_nWorldLights || n < 0)
+	{
+		Assert(n >= 0);
+		return false;
+	}
+#endif
 
 	// Default light position and brightness to zero
 	vecLightBrightness.Init();
@@ -194,6 +211,10 @@ bool CWorldLights::GetBrightestLightSource(const Vector& vecPosition, Vector& ve
 	// Get the PVS at our position
 	byte* pvs = new byte[nPVSSize];
 	g_pEngineServer->GetPVSForCluster(nCluster, nPVSSize, pvs);
+
+#ifdef NEO
+	CUtlVector<std::pair<Vector, Vector>> brightest(0, n + 1);
+#endif
 
 	// Iterate through all the worldlights
 	for (int i = 0; i < m_nWorldLights; ++i)
@@ -265,7 +286,11 @@ bool CWorldLights::GetBrightestLightSource(const Vector& vecPosition, Vector& ve
 		Vector vecIntensity = light->intensity * flRatio;
 
 		// Is this light more intense than the one we already found?
+#ifdef NEO
+		if (brightest.Count() > n && vecIntensity.LengthSqr() <= brightest.Element(n).second.LengthSqr())
+#else
 		if (vecIntensity.LengthSqr() <= vecLightBrightness.LengthSqr())
+#endif
 		{
 			//engine->Con_NPrintf( i, "%d: too dim", i );
 			continue;
@@ -282,8 +307,14 @@ bool CWorldLights::GetBrightestLightSource(const Vector& vecPosition, Vector& ve
 			continue;
 		}
 
+#ifdef NEO
+		brightest.AddToTail(std::make_pair(light->origin, vecIntensity));
+		brightest.SortPredicate([](const auto& l, const auto& r)->bool { return r.second.LengthSqr() < l.second.LengthSqr(); });
+		brightest.SetCountNonDestructively(n + 1);
+#else
 		vecLightPos = light->origin;
 		vecLightBrightness = vecIntensity;
+#endif
 
 		//engine->Con_NPrintf( i, "%d: set (%.2f)", i, vecIntensity.Length() );
 	}
@@ -291,6 +322,13 @@ bool CWorldLights::GetBrightestLightSource(const Vector& vecPosition, Vector& ve
 	delete[] pvs;
 
 	//engine->Con_NPrintf( m_nWorldLights, "result: %d", !vecLightBrightness.IsZero() );
+#ifdef NEO
+	if (brightest.Count()-1 < n)
+		return false;
+	const auto& res = brightest.Element(n);
+	vecLightPos = res.first;
+	vecLightBrightness = res.second;
+#endif
 	return !vecLightBrightness.IsZero();
 }
 

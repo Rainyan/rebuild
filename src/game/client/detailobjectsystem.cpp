@@ -168,7 +168,11 @@ public:
 	virtual bool				IgnoresZBuffer( void ) const { return false; }
 	virtual bool				LODTest() { return true; }
 
+#ifdef NEO
+	virtual ClientShadowHandle_t	GetShadowHandle(int i) const override;
+#else
 	virtual ClientShadowHandle_t	GetShadowHandle() const;
+#endif
 	virtual ClientRenderHandle_t&	RenderHandle();
 	virtual void				GetShadowRenderBounds( Vector &mins, Vector &maxs, ShadowType_t shadowType );
 	virtual bool IsShadowDirty( )			     { return false; }
@@ -635,7 +639,11 @@ void CDetailModel::GetShadowRenderBounds( Vector &mins, Vector &maxs, ShadowType
 	GetRenderBounds( mins, maxs );
 }
 
+#ifdef NEO
+ClientShadowHandle_t CDetailModel::GetShadowHandle(int i) const
+#else
 ClientShadowHandle_t CDetailModel::GetShadowHandle() const
+#endif
 {
 	return CLIENTSHADOW_INVALID_HANDLE;
 }

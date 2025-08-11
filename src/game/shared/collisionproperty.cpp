@@ -1240,7 +1240,17 @@ void CCollisionProperty::MarkSurroundingBoundsDirty()
 	MarkPartitionHandleDirty();
 
 #ifdef CLIENT_DLL
+#ifdef NEO
+	for (int i = 0;; ++i)
+	{
+		auto shadow = GetOuter()->GetShadowHandle(i);
+		if (!IsValidShadowHandle(shadow))
+			break;
+		g_pClientShadowMgr->MarkRenderToTextureShadowDirty(shadow);
+	}
+#else
 	g_pClientShadowMgr->MarkRenderToTextureShadowDirty( GetOuter()->GetShadowHandle() );
+#endif
 #else
 	GetOuter()->NetworkProp()->MarkPVSInformationDirty();
 #endif

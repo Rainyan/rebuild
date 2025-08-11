@@ -29,8 +29,26 @@ typedef unsigned short ClientShadowHandle_t;
 
 enum
 {
+#ifdef NEO
+	CLIENTSHADOW_INVALID_HANDLE = ((ClientShadowHandle_t)~0)-1,
+	CLIENTSHADOW_OUT_OF_RANGE = CLIENTSHADOW_INVALID_HANDLE+1
+#else
 	CLIENTSHADOW_INVALID_HANDLE = (ClientShadowHandle_t)~0
+#endif
 };
+#ifdef NEO
+#pragma push_macro("max")
+#undef max
+static_assert(std::numeric_limits<ClientShadowHandle_t>::max()-1 == CLIENTSHADOW_INVALID_HANDLE);
+static_assert(std::numeric_limits<ClientShadowHandle_t>::max() == CLIENTSHADOW_OUT_OF_RANGE);
+#pragma pop_macro("max")
+
+inline bool IsValidShadowHandle(ClientShadowHandle_t shadowHandle)
+{
+	return shadowHandle != CLIENTSHADOW_INVALID_HANDLE && shadowHandle != CLIENTSHADOW_OUT_OF_RANGE;
+}
+#endif
+
 
 //-----------------------------------------------------------------------------
 // What kind of shadows to render?
@@ -77,7 +95,11 @@ public:
 	virtual bool					UsesPowerOfTwoFrameBufferTexture() = 0;
 	virtual bool					UsesFullFrameBufferTexture() = 0;
 
+#ifdef NEO
+	virtual ClientShadowHandle_t	GetShadowHandle(int i) const = 0;
+#else
 	virtual ClientShadowHandle_t	GetShadowHandle() const = 0;
+#endif
 
 	// Used by the leaf system to store its render handle.
 	virtual ClientRenderHandle_t&	RenderHandle() = 0;
@@ -193,10 +215,18 @@ public:
 	virtual bool					UsesPowerOfTwoFrameBufferTexture( void ) { return false; }
 	virtual bool					UsesFullFrameBufferTexture( void ) { return false; }
 
+#ifdef NEO
+	virtual ClientShadowHandle_t	GetShadowHandle(int i) const
+	{
+		Assert(i >= 0);
+		return CLIENTSHADOW_INVALID_HANDLE;
+	}
+#else
 	virtual ClientShadowHandle_t	GetShadowHandle() const
 	{
 		return CLIENTSHADOW_INVALID_HANDLE;
 	}
+#endif
 
 	virtual ClientRenderHandle_t&	RenderHandle()
 	{

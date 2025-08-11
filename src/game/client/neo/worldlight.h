@@ -27,7 +27,11 @@ public:
 	CWorldLights();
 	~CWorldLights() { Clear(); }
 
+#ifdef NEO
+	bool GetNthBrightestLightSource(int n, const Vector& vecPosition, Vector& vecLightPos, Vector& vecLightBrightness);
+#else
 	bool GetBrightestLightSource(const Vector& vecPosition, Vector& vecLightPos, Vector& vecLightBrightness);
+#endif
 
 	// CAutoGameSystem overrides
 	bool Init() OVERRIDE;

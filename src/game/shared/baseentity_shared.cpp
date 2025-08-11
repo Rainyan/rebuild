@@ -1476,7 +1476,17 @@ void CBaseEntity::InvalidatePhysicsRecursive( int nChangeFlags )
 #ifdef CLIENT_DLL
 			MarkRenderHandleDirty();
 			g_pClientShadowMgr->AddToDirtyShadowList( this );
+#ifdef NEO
+			for (int i = 0;; ++i)
+			{
+				auto shadow = GetShadowHandle(i);
+				if (!IsValidShadowHandle(shadow))
+					break;
+				g_pClientShadowMgr->MarkRenderToTextureShadowDirty(shadow);
+			}
+#else
 			g_pClientShadowMgr->MarkRenderToTextureShadowDirty( GetShadowHandle() );
+#endif
 #endif
 		}
 
@@ -1492,7 +1502,17 @@ void CBaseEntity::InvalidatePhysicsRecursive( int nChangeFlags )
 	if ( nChangeFlags & ANIMATION_CHANGED )
 	{
 #ifdef CLIENT_DLL
+#ifdef NEO
+		for (int i = 0;; ++i)
+		{
+			auto shadow = GetShadowHandle(i);
+			if (!IsValidShadowHandle(shadow))
+				break;
+			g_pClientShadowMgr->MarkRenderToTextureShadowDirty(shadow);
+		}
+#else
 		g_pClientShadowMgr->MarkRenderToTextureShadowDirty( GetShadowHandle() );
+#endif
 #endif
 
 		// Only set this flag if the only thing that changed us was the animation.

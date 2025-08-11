@@ -1590,7 +1590,11 @@ void CClientShadowMgr::LevelShutdownPostEntity()
 	Assert( m_Shadows.Count() == 0 );
 
 	ClientShadowHandle_t h = m_Shadows.Head();
+#ifdef NEO
+	while (h != CLIENTSHADOW_OUT_OF_RANGE)
+#else
 	while (h != CLIENTSHADOW_INVALID_HANDLE)
+#endif
 	{
 		ClientShadowHandle_t next = m_Shadows.Next(h);
 		DestroyShadow( h );
@@ -1689,7 +1693,20 @@ void CClientShadowMgr::UpdateAllShadows()
 		if ( !pRenderable )
 			continue;
 
+#ifdef NEO
+#ifdef DEBUG
+		ClientShadowHandle_t shadowHandle;
+		for (int j = 0;; ++j)
+		{
+			shadowHandle = pRenderable->GetShadowHandle(j);
+			if (!IsValidShadowHandle(shadowHandle))
+				break;
+			Assert(shadowHandle == i);
+		}
+#endif
+#else
 		Assert( pRenderable->GetShadowHandle() == i );
+#endif
 		AddToDirtyShadowList( pRenderable, true );
 	}
 }
@@ -2289,7 +2306,11 @@ inline ShadowType_t CClientShadowMgr::GetActualShadowCastType( ClientShadowHandl
 
 inline ShadowType_t CClientShadowMgr::GetActualShadowCastType( IClientRenderable *pEnt ) const
 {
+#ifdef NEO
+	return GetActualShadowCastType( pEnt->GetShadowHandle(0) );
+#else
 	return GetActualShadowCastType( pEnt->GetShadowHandle() );
+#endif
 }
 
 
@@ -3104,6 +3125,26 @@ void CClientShadowMgr::AddToDirtyShadowList( IClientRenderable *pRenderable, boo
 	if ( pRenderable->IsShadowDirty( ) )
 		return;
 
+#ifdef NEO
+	for (int i = 0;; ++i)
+	{
+		ClientShadowHandle_t handle = pRenderable->GetShadowHandle(i);
+		if (handle == CLIENTSHADOW_OUT_OF_RANGE)
+			break;
+
+		if (handle == CLIENTSHADOW_INVALID_HANDLE)
+			continue;
+
+#ifdef _DEBUG
+		// Make sure everything's consistent
+		IClientRenderable* pShadowRenderable = ClientEntityList().GetClientRenderableFromHandle(m_Shadows[handle].m_Entity);
+		Assert(pRenderable == pShadowRenderable);
+#endif
+
+		pRenderable->MarkShadowDirty(true);
+		AddToDirtyShadowList(handle, bForce);
+	}
+#else
 	ClientShadowHandle_t handle = pRenderable->GetShadowHandle();
 	if ( handle == CLIENTSHADOW_INVALID_HANDLE )
 		return;
@@ -3119,6 +3160,7 @@ void CClientShadowMgr::AddToDirtyShadowList( IClientRenderable *pRenderable, boo
 
 	pRenderable->MarkShadowDirty( true );
 	AddToDirtyShadowList( handle, bForce );
+#endif
 }
 
 
@@ -3138,11 +3180,25 @@ void CClientShadowMgr::MarkRenderToTextureShadowDirty( ClientShadowHandle_t hand
 		IClientRenderable *pParent = GetParentShadowEntity( handle );
 		if ( pParent )
 		{
+#ifdef NEO
+			for (int i = 0;; ++i)
+			{
+				ClientShadowHandle_t parentHandle = pParent->GetShadowHandle(i);
+				if (parentHandle == CLIENTSHADOW_OUT_OF_RANGE)
+					break;
+
+				if ( parentHandle != CLIENTSHADOW_INVALID_HANDLE )
+				{
+					m_Shadows[parentHandle].m_Flags |= SHADOW_FLAGS_TEXTURE_DIRTY;
+				}
+			}
+#else
 			ClientShadowHandle_t parentHandle = pParent->GetShadowHandle();
 			if ( parentHandle != CLIENTSHADOW_INVALID_HANDLE )
 			{
 				m_Shadows[parentHandle].m_Flags |= SHADOW_FLAGS_TEXTURE_DIRTY;
 			}
+#endif
 		}
 	}
 }
@@ -4336,7 +4392,30 @@ void CClientShadowMgr::UpdateShadowDirectionFromLocalLightSource(ClientShadowHan
 		float flMinBrightnessSqr = r_worldlight_mincastintensity.GetFloat();
 		flMinBrightnessSqr *= flMinBrightnessSqr;
 
+#ifdef NEO
+		auto pEnt = pRenderable->GetIClientUnknown()->GetBaseEntity();
+		int nthShadow{};
+		if (pEnt)
+		{
+			for (int i = 0;; ++i)
+			{
+				const auto s = pEnt->GetShadowHandle(i);
+				if (s == CLIENTSHADOW_OUT_OF_RANGE)
+					break;
+				if (s == CLIENTSHADOW_INVALID_HANDLE)
+					continue;
+				if (s != shadowHandle)
+					continue;
+				nthShadow = i;
+				break;
+			}
+		}
+
+		if (g_pWorldLights->GetNthBrightestLightSource(nthShadow, pRenderable->GetRenderOrigin(), lightPos, lightBrightness) == false
+			|| lightBrightness.LengthSqr() < flMinBrightnessSqr)
+#else
 		if (g_pWorldLights->GetBrightestLightSource(pRenderable->GetRenderOrigin(), lightPos, lightBrightness) == false || lightBrightness.LengthSqr() < flMinBrightnessSqr)
+#endif
 		{
 			// Didn't find a light source at all, use default shadow direction
 			// TODO: Could switch to using blobby shadow in this case

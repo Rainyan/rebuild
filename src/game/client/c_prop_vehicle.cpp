@@ -187,7 +187,17 @@ ShadowType_t C_PropVehicleDriveable::ShadowCastType()
 void C_PropVehicleDriveable::ClientThink( void )
 {
 	// The vehicle is always dirty owing to pose parameters while it's being driven.
+#ifdef NEO
+	for (int i = 0;; ++i)
+	{
+		auto shadow = GetShadowHandle(i);
+		if (shadow == CLIENTSHADOW_OUT_OF_RANGE)
+			break;
+		g_pClientShadowMgr->MarkRenderToTextureShadowDirty( shadow );
+	}
+#else
 	g_pClientShadowMgr->MarkRenderToTextureShadowDirty( GetShadowHandle() );
+#endif
 }
 
 
