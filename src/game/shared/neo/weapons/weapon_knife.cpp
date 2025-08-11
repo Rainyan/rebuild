@@ -113,18 +113,7 @@ bool CWeaponKnife::CanBePickedUpByClass(int classId)
 bool CWeaponKnife::ShouldDraw()
 {
 	auto owner = static_cast<CNEO_Player*>(GetOwner());
-	bool draw = (owner && owner->IsAlive() && owner->GetActiveWeapon() == this);
-
-	if (draw) // DG: Disable shadows manually because it doesn't do it on its own
-	{
-		RemoveEffects(EF_NOSHADOW);
-	}
-	else
-	{
-		AddEffects(EF_NOSHADOW);
-	}
-
-	return draw;
+	return (owner && owner->IsAlive() && owner->GetActiveWeapon() == this);
 }
 #else
 bool CWeaponKnife::IsViewable()
