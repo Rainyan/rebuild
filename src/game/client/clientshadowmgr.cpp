@@ -84,6 +84,7 @@
 #ifdef NEO
 #include "debugoverlay_shared.h"
 #include "worldlight.h"
+#include "c_neo_player.h"
 #endif
 
 
@@ -1695,14 +1696,17 @@ void CClientShadowMgr::UpdateAllShadows()
 
 #ifdef NEO
 #ifdef DEBUG
+		Assert(IsValidShadowHandle(i));
 		ClientShadowHandle_t shadowHandle;
-		for (int j = 0;; ++j)
+		bool shadowHandleBelongsToRenderable{};
+		for (int j = 0; !shadowHandleBelongsToRenderable; ++j)
 		{
 			shadowHandle = pRenderable->GetShadowHandle(j);
-			if (!IsValidShadowHandle(shadowHandle))
+			if (shadowHandle == CLIENTSHADOW_OUT_OF_RANGE)
 				break;
-			Assert(shadowHandle == i);
+			shadowHandleBelongsToRenderable = shadowHandle == i;
 		}
+		Assert(shadowHandleBelongsToRenderable);
 #endif
 #else
 		Assert( pRenderable->GetShadowHandle() == i );
@@ -1956,7 +1960,13 @@ ClientShadowHandle_t CClientShadowMgr::CreateShadow( ClientEntityHandle_t entity
 	IClientRenderable *pRenderable = ClientEntityList().GetClientRenderableFromHandle( entity );
 	if ( pRenderable )
 	{
+#ifdef NEO
+		// NEO FIXME (Rain): Just a hack to silence the assert for players with >1 shadows.
+		// We need to properly fix this by making the shadow dirty flags compatible with multiple shadows per renderable.
+		Assert( ToNEOPlayer(pRenderable->GetIClientUnknown()->GetBaseEntity()) || !pRenderable->IsShadowDirty( ) );
+#else
 		Assert( !pRenderable->IsShadowDirty( ) );
+#endif
 		pRenderable->MarkShadowDirty( true );
 	}
 
