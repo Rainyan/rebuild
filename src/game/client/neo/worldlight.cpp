@@ -219,7 +219,9 @@ bool CWorldLights::GetBrightestLightSource(const Vector& vecPosition, Vector& ve
 	g_pEngineServer->GetPVSForCluster(nCluster, nPVSSize, pvs);
 
 #ifdef NEO
-	CUtlVector<std::pair<Vector, Vector>> brightest(0, n + 1);
+	// Allocating n+2 because we want 1 more for relative brightness comparisons,
+	// and one extra to prune/grow the vector without reallocations.
+	CUtlVector<std::pair<Vector, Vector>> brightest(0, n + 2);
 #endif
 
 	// Iterate through all the worldlights
@@ -293,14 +295,19 @@ bool CWorldLights::GetBrightestLightSource(const Vector& vecPosition, Vector& ve
 
 		// Is this light more intense than the one we already found?
 #ifdef NEO
-		if (brightest.Count() > n && vecIntensity.LengthSqr() <= brightest.Element(n).second.LengthSqr())
+		if (brightest.Count() > n+1)
+		{
+			const auto& dimmestBrightness = brightest.Tail().second;
+			if (vecIntensity.LengthSqr() <= dimmestBrightness.LengthSqr())
+				continue;
+		}
 #else
 		if (vecIntensity.LengthSqr() <= vecLightBrightness.LengthSqr())
-#endif
 		{
 			//engine->Con_NPrintf( i, "%d: too dim", i );
 			continue;
 		}
+#endif
 
 		// Can we see the light?
 		trace_t tr;
@@ -316,7 +323,8 @@ bool CWorldLights::GetBrightestLightSource(const Vector& vecPosition, Vector& ve
 #ifdef NEO
 		brightest.AddToTail(std::make_pair(light->origin, vecIntensity));
 		brightest.SortPredicate([](const auto& l, const auto& r)->bool { return r.second.LengthSqr() < l.second.LengthSqr(); });
-		brightest.SetCountNonDestructively(n + 1);
+		if (brightest.Count() > n + 2)
+			brightest.SetCountNonDestructively(n + 2);
 #else
 		vecLightPos = light->origin;
 		vecLightBrightness = vecIntensity;
@@ -335,15 +343,27 @@ bool CWorldLights::GetBrightestLightSource(const Vector& vecPosition, Vector& ve
 	vecLightPos = res.first;
 	vecLightBrightness = res.second;
 
+	// NEO TODO (Rain): this calculation assumes 1 (n==0) or 2 (n==1) lights. Would be nice to support any amount accurately.
 	if (n == 0)
 	{
-		relativeBrightness = 1;
+		// If no other lights existed, set relative brightness as 100%
+		if (brightest.Count() - 1 < n + 1)
+		{
+			relativeBrightness = 1;
+		}
+		else
+		{
+			const auto& nextBrightest = brightest.Element(n + 1).second;
+			const auto brightness = vecLightBrightness.LengthSqr();
+			relativeBrightness = brightness ? nextBrightest.LengthSqr() / brightness : 0;
+		}
 	}
+	// If comparing other than 0th element, compare against the brighter one, not dimmer one
 	else
 	{
-		const auto& prev = brightest.Element(n - 1);
-		const auto prevLenSqr = prev.second.LengthSqr();
-		relativeBrightness = prevLenSqr ? res.second.LengthSqr() / prevLenSqr : 1;
+		const auto& prevBrightest = brightest.Element(n - 1).second;
+		const auto prevBrightness = prevBrightest.LengthSqr();
+		relativeBrightness = prevBrightness ? 1 - vecLightBrightness.LengthSqr() / prevBrightness : 0;
 	}
 	Assert(relativeBrightness >= 0 && relativeBrightness <= 1);
 #endif
