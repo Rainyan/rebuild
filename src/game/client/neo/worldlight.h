@@ -28,7 +28,7 @@ public:
 	~CWorldLights() { Clear(); }
 
 #ifdef NEO
-	bool GetNthBrightestLightSource(int n, const Vector& vecPosition, Vector& vecLightPos, Vector& vecLightBrightness, vec_t& relativeBrightness);
+	bool GetNthBrightestLightSource(int n, const IClientRenderable* pRenderable, const Vector& vecPosition, Vector& vecLightPos, Vector& vecLightBrightness, vec_t& relativeBrightness);
 #else
 	bool GetBrightestLightSource(const Vector& vecPosition, Vector& vecLightPos, Vector& vecLightBrightness);
 #endif

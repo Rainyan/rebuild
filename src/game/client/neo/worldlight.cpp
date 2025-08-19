@@ -186,7 +186,7 @@ void CWorldLights::LevelInitPreEntity()
 // "relativeBrightness" is the fraction of the output vecLightBrightness's squared magnitude
 // in relation to the (n-1)th squared magnitude, or 1.0 if n equals 0 or (n-1)th magnitude equals 0.
 // Out variable contents are indeterminate if the return value is false.
-bool CWorldLights::GetNthBrightestLightSource(int n, const Vector& vecPosition, Vector& vecLightPos, Vector& vecLightBrightness,
+bool CWorldLights::GetNthBrightestLightSource(int n, const IClientRenderable* pRenderable, const Vector& vecPosition, Vector& vecLightPos, Vector& vecLightBrightness,
 	vec_t& relativeBrightness)
 #else
 //-----------------------------------------------------------------------------
@@ -199,6 +199,8 @@ bool CWorldLights::GetBrightestLightSource(const Vector& vecPosition, Vector& ve
 		return false;
 
 #ifdef NEO
+	Assert(pRenderable);
+
 	if (n >= m_nWorldLights || n < 0)
 	{
 		Assert(n >= 0);
@@ -337,35 +339,34 @@ bool CWorldLights::GetBrightestLightSource(const Vector& vecPosition, Vector& ve
 
 	//engine->Con_NPrintf( m_nWorldLights, "result: %d", !vecLightBrightness.IsZero() );
 #ifdef NEO
-	if (brightest.Count()-1 < n)
+	if (brightest.Count() - 1 < n)
 		return false;
+
+	int totalShadows;
+	for (totalShadows = 0;; ++totalShadows)
+	{
+		const auto s = pRenderable->GetShadowHandle(totalShadows);
+		if (s == CLIENTSHADOW_OUT_OF_RANGE)
+			break;
+		if (s == CLIENTSHADOW_INVALID_HANDLE)
+			continue;
+		continue;
+	}
+	if (totalShadows == 0)
+	{
+		Assert(false);
+		return false;
+	}
+
 	const auto& res = brightest.Element(n);
 	vecLightPos = res.first;
-	vecLightBrightness = res.second;
+	vecLightBrightness = res.second / totalShadows;
 
-	// NEO TODO (Rain): this calculation assumes 1 (n==0) or 2 (n==1) lights. Would be nice to support any amount accurately.
-	if (n == 0)
-	{
-		// If no other lights existed, set relative brightness as 100%
-		if (brightest.Count() - 1 < n + 1)
-		{
-			relativeBrightness = 1;
-		}
-		else
-		{
-			const auto& nextBrightest = brightest.Element(n + 1).second;
-			const auto brightness = vecLightBrightness.LengthSqr();
-			relativeBrightness = brightness ? nextBrightest.LengthSqr() / brightness : 0;
-		}
-	}
-	// If comparing other than 0th element, compare against the brighter one, not dimmer one
-	else
-	{
-		const auto& prevBrightest = brightest.Element(n - 1).second;
-		const auto prevBrightness = prevBrightest.LengthSqr();
-		relativeBrightness = prevBrightness ? 1 - vecLightBrightness.LengthSqr() / prevBrightness : 0;
-	}
-	Assert(relativeBrightness >= 0 && relativeBrightness <= 1);
+	Assert(
+		vecLightBrightness.IsZero(0) ||
+		vecLightBrightness.IsLengthGreaterThan(0) ||
+		vecLightBrightness.IsLengthLessThan(1) ||
+		vecLightBrightness.LengthSqr() == 1);
 #endif
 	return !vecLightBrightness.IsZero();
 }

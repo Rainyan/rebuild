@@ -4422,7 +4422,7 @@ void CClientShadowMgr::UpdateShadowDirectionFromLocalLightSource(ClientShadowHan
 		}
 
 		vec_t relativeBrightness;
-		if (!g_pWorldLights->GetNthBrightestLightSource(nthShadow, pRenderable->GetRenderOrigin(), lightPos, lightBrightness, relativeBrightness)
+		if (!g_pWorldLights->GetNthBrightestLightSource(nthShadow, pRenderable, pRenderable->GetRenderOrigin(), lightPos, lightBrightness, relativeBrightness)
 			|| lightBrightness.LengthSqr() < flMinBrightnessSqr)
 #else
 		if (g_pWorldLights->GetBrightestLightSource(pRenderable->GetRenderOrigin(), lightPos, lightBrightness) == false || lightBrightness.LengthSqr() < flMinBrightnessSqr)
