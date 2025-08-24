@@ -85,6 +85,8 @@
 #include "debugoverlay_shared.h"
 #include "worldlight.h"
 #include "c_neo_player.h"
+#include <cmath>
+#include <utility>
 #endif
 
 
@@ -4388,6 +4390,27 @@ void CClientShadowMgr::UpdateShadowDirectionFromLocalLightSource(ClientShadowHan
 		return;
 	}
 
+#ifdef NEO
+	CUtlVector<ClientShadow_t*> otherShadows(0, 2);
+	if (const auto neoPlayer = ToNEOPlayer(pRenderable->GetIClientUnknown()->GetBaseEntity()))
+	{
+		for (int shadowCount = 0;; ++shadowCount)
+		{
+			const auto& s = pRenderable->GetShadowHandle(shadowCount);
+			if (s == CLIENTSHADOW_OUT_OF_RANGE)
+				break;
+			if (s == CLIENTSHADOW_INVALID_HANDLE)
+				continue;
+			if (s == shadow.m_ShadowHandle)
+				continue;
+			otherShadows.AddToTail(&m_Shadows[s]);
+
+			//auto p = DotProduct(shadow.m_ShadowDir, m_Shadows[s].m_ShadowDir);
+			//DevMsg("%d -> p: %f\n", shadowCount, p);
+		}
+	}
+#endif
+
 	Vector bbMin, bbMax;
 	pRenderable->GetRenderBoundsWorldspace(bbMin, bbMax);
 	Vector origin(0.5f * (bbMin + bbMax));
@@ -4489,11 +4512,75 @@ void CClientShadowMgr::UpdateShadowDirectionFromLocalLightSource(ClientShadowHan
 		}
 		else
 #endif
+		bool swapShadows = false;
 		{
-			lightPos = Lerp(shadow.m_LightPosLerp, currLightPos, targetLightPos);
+			for (int i = 0; !swapShadows && i < otherShadows.Count(); ++i)
+			{
+				ClientShadow_t* otherShadow = otherShadows[i];
+				constexpr int ulps = 10;
+				swapShadows = AlmostEqual(shadow.m_TargetLightPos, otherShadow->m_CurrentLightPos, ulps) &&
+					AlmostEqual(otherShadow->m_TargetLightPos, shadow.m_CurrentLightPos, ulps);
+
+				if (swapShadows)
+				{
+					std::swap(shadow.m_CurrentLightPos, otherShadow->m_CurrentLightPos);
+					shadow.m_LightPosLerp = 1;
+					otherShadow->m_LightPosLerp = 1;
+					DevMsg("!! Swap! %d\n", gpGlobals->tickcount);
+				}
+				else
+				{
+					constexpr auto isInfOrNan = [](const Vector& v)->bool {
+						for (int i = 0; i < 3; ++i) {
+							if (std::isinf(v[i]) || std::isnan(v[i]))
+								return true;
+						}
+						return false;
+					};
+					constexpr auto isShadowInfOrNan = [](const ClientShadow_t& s)->bool {
+						return isInfOrNan(s.m_CurrentLightPos) || isInfOrNan(s.m_TargetLightPos);
+					};
+
+					constexpr auto isRidiculouslyLarge = [](const ClientShadow_t& s)->bool {
+						constexpr auto limit = 10000;
+						return s.m_CurrentLightPos.IsLengthGreaterThan(limit) ||
+							s.m_TargetLightPos.IsLengthGreaterThan(limit);
+					};
+
+					if (!isShadowInfOrNan(shadow) && !isShadowInfOrNan(*otherShadow))
+					{
+						if (!isRidiculouslyLarge(shadow) && !isRidiculouslyLarge(*otherShadow))
+						{
+							DevMsg("%f %f %f vs %f %f %f && %f %f %f vs %f %f %f\n",
+								shadow.m_TargetLightPos.x, shadow.m_TargetLightPos.y, shadow.m_TargetLightPos.z,
+								otherShadow->m_CurrentLightPos.x, otherShadow->m_CurrentLightPos.y, otherShadow->m_CurrentLightPos.z,
+
+								otherShadow->m_TargetLightPos.x, otherShadow->m_TargetLightPos.y, otherShadow->m_TargetLightPos.z,
+								shadow.m_CurrentLightPos.x, shadow.m_CurrentLightPos.y, shadow.m_CurrentLightPos.z);
+						}
+						else
+						{
+							DevMsg("Too large\n");
+						}
+					}
+					else
+					{
+						DevMsg("Inf or NaN\n");
+					}
+				}
+			}
+
+			if (swapShadows)
+			{
+				lightPos = targetLightPos;
+			}
+			else
+			{
+				lightPos = Lerp(shadow.m_LightPosLerp, currLightPos, targetLightPos);
+			}
 		}
 
-		if (shadow.m_LightPosLerp >= 1.0f)
+		if (!swapShadows && shadow.m_LightPosLerp >= 1.0f)
 		{
 			shadow.m_CurrentLightPos = shadow.m_TargetLightPos;
 		}
