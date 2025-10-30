@@ -72,6 +72,17 @@
 #include "sharedInterface.h"
 #include "renderparm.h"
 
+#ifdef NEO
+#ifdef CLIENT_DLL
+#include "cliententitylist.h"
+#ifndef CEntityClassList
+#define CEntityClassList C_EntityClassList
+#endif
+#else
+#include "entitylist.h"
+#endif
+#endif
+
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
@@ -81,12 +92,21 @@
 //-----------------------------------------------------------------------------
 static Vector s_vecWindVelocity( 0, 0, 0 );
 
+#ifdef NEO
+CEntityClassList<CEnvWindShared> g_WindControllerList;
+template <> CEnvWindShared* CEntityClassList<CEnvWindShared>::m_pClassList = NULL;
+#else
 static CUtlLinkedList< CEnvWindShared * > s_windControllers;
+#endif
 
 CEnvWindShared::CEnvWindShared() : m_WindAveQueue(10), m_WindVariationQueue(10)
 {
 	m_pWindSound = NULL;
+#ifdef NEO
+	g_WindControllerList.Insert(this);
+#else
 	s_windControllers.AddToTail( this );
+#endif
 }
 
 CEnvWindShared::~CEnvWindShared()
@@ -95,7 +115,11 @@ CEnvWindShared::~CEnvWindShared()
 	{
 		CSoundEnvelopeController::GetController().Shutdown( m_pWindSound );
 	}
+#ifdef NEO
+	g_WindControllerList.Remove(this);
+#else
 	s_windControllers.FindAndRemove( this );
+#endif
 }
 
 void CEnvWindShared::Init( int nEntIndex, int iRandomSeed, float flTime, 
@@ -317,10 +341,17 @@ void CEnvWindShared::Reset()
 //-----------------------------------------------------------------------------
 void ResetWindspeed()
 {
+#ifdef NEO
+	FOR_EACH_CLSL(g_WindControllerList, it)
+	{
+		it->Reset();
+	}
+#else
 	FOR_EACH_LL( s_windControllers, it )
 	{
 		s_windControllers[it]->Reset();
 	}
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -330,9 +361,15 @@ void ResetWindspeed()
 //-----------------------------------------------------------------------------
 Vector GetWindspeedAtLocation( const Vector &location )
 {
+#ifdef NEO
+	FOR_EACH_CLSL(g_WindControllerList, it)
+	{
+		CEnvWindShared* thisWindController = it;
+#else
 	FOR_EACH_LL( s_windControllers, it )
 	{
 		CEnvWindShared *thisWindController = s_windControllers[it];
+#endif
 		float distance = (thisWindController->m_location - location).Length();
 
 		if( distance < thisWindController->m_windRadius )
@@ -342,10 +379,15 @@ Vector GetWindspeedAtLocation( const Vector &location )
 		}
 	}
 
+#ifdef NEO
+	FOR_EACH_CLSL(g_WindControllerList, it)
+	{
+		CEnvWindShared* thisWindController = it;
+#else
 	FOR_EACH_LL( s_windControllers, it )
 	{
 		CEnvWindShared *thisWindController = s_windControllers[it];
-
+#endif
 		if( thisWindController->m_windRadius == -1.0f )
 		{
 			// We do a second search for a global controller so you don't have to worry about order in the list.  
@@ -364,12 +406,20 @@ void GetWindspeedAtTime( float flTime, Vector &vecVelocity )
 {
 	// For now, ignore history and time.. fix later when we use wind to affect
 	// client-side prediction
-	if ( s_windControllers.Count() == 0 )
+#ifdef NEO
+	if (!g_WindControllerList.m_pClassList)
+#else
+	if (s_windControllers.Count() == 0)
+#endif
 	{
 		vecVelocity.Init( 0, 0, 0 );
 	}
 	else
 	{
+#ifdef NEO
+		VectorCopy(g_WindControllerList.m_pClassList->m_currentWindVector, vecVelocity);
+#else
 		VectorCopy( s_windControllers[ s_windControllers.Head() ]->m_currentWindVector, vecVelocity );
+#endif
 	}
 }

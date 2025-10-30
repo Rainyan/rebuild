@@ -16,6 +16,10 @@
 #include "utllinkedlist.h"
 #include "ihandleentity.h"
 
+#ifdef NEO
+#define FOR_EACH_CLSL( listName, iteratorName ) \
+	for( auto* iteratorName=(listName).m_pClassList; iteratorName; iteratorName = (iteratorName)->m_pNext )
+#endif
 
 class CEntInfo
 {

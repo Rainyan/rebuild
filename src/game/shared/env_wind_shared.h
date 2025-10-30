@@ -239,6 +239,11 @@ private:
 
 private:
 	CEnvWindShared( const CEnvWindShared & ); // not defined, not accessible
+
+#ifdef NEO
+public:
+	CEnvWindShared* m_pNext = nullptr;
+#endif
 };
 
 //-----------------------------------------------------------------------------
