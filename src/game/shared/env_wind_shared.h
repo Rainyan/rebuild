@@ -14,6 +14,19 @@
 #include "mathlib/vector.h"
 #include <float.h>
 
+#ifdef NEO
+#ifdef CLIENT_DLL
+#include "cliententitylist.h"
+#ifndef CEntityClassList
+#define CEntityClassList C_EntityClassList
+#endif
+#ifndef CEnvWindShared
+#define CEnvWindShared C_EnvWindShared
+#endif
+#else
+#include "entitylist.h"
+#endif
+#endif
 
 //-----------------------------------------------------------------------------
 // Forward declarations
@@ -189,6 +202,11 @@ public:
 	COutputEvent m_OnGustEnd;
 #endif
 
+#ifdef NEO
+	static void ResetWindspeed();
+	static Vector GetWindspeedAtLocation(const Vector& location);
+#endif
+
 private:
 	struct WindAveEvent_t
 	{
@@ -239,9 +257,8 @@ private:
 
 private:
 	CEnvWindShared( const CEnvWindShared & ); // not defined, not accessible
-
 #ifdef NEO
-public:
+	friend class CEntityClassList<CEnvWindShared>;
 	CEnvWindShared* m_pNext = nullptr;
 #endif
 };

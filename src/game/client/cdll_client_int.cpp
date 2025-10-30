@@ -1871,6 +1871,9 @@ void CHLClient::LevelInitPreEntity( char const* pMapName )
 	}
 #endif // USES_ECON_ITEMS
 
+#ifdef NEO
+	CEnvWindShared::
+#endif
 	ResetWindspeed();
 
 #if !defined( NO_ENTITY_PREDICTION )

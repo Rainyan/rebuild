@@ -72,17 +72,6 @@
 #include "sharedInterface.h"
 #include "renderparm.h"
 
-#ifdef NEO
-#ifdef CLIENT_DLL
-#include "cliententitylist.h"
-#ifndef CEntityClassList
-#define CEntityClassList C_EntityClassList
-#endif
-#else
-#include "entitylist.h"
-#endif
-#endif
-
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
@@ -339,7 +328,11 @@ void CEnvWindShared::Reset()
 //-----------------------------------------------------------------------------
 // Method to reset windspeed..
 //-----------------------------------------------------------------------------
+#ifdef NEO
+void CEnvWindShared::ResetWindspeed()
+#else
 void ResetWindspeed()
+#endif
 {
 #ifdef NEO
 	FOR_EACH_CLSL(g_WindControllerList, it)
@@ -359,7 +352,11 @@ void ResetWindspeed()
 // features that aren't written, but we do need to have multiple wind controllers on a map, so
 // we need to find the one that is affecting the given location and return its speed.
 //-----------------------------------------------------------------------------
+#ifdef NEO
+Vector CEnvWindShared::GetWindspeedAtLocation(const Vector& location)
+#else
 Vector GetWindspeedAtLocation( const Vector &location )
+#endif
 {
 #ifdef NEO
 	FOR_EACH_CLSL(g_WindControllerList, it)

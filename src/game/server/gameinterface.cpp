@@ -998,6 +998,9 @@ bool CServerGameDLL::LevelInit( const char *pMapName, char const *pMapEntities, 
 	}
 #endif // USES_ECON_ITEMS
 
+#ifdef NEO
+	CEnvWindShared::
+#endif
 	ResetWindspeed();
 	UpdateChapterRestrictions( pMapName );
 
