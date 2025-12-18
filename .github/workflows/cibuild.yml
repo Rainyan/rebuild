@@ -266,6 +266,10 @@ jobs:
   pack-resources:
     name: Windows Native Resources
 
+    # The code build is not a hard requirement, but adding it as prerequisite prevents us from generating
+    # the really large CI artifacts here for faulty runs (400MB+ as of 2025/12).
+    # This does increase our total runtime by however long this job takes (historically about 2 mins).
+    needs: [linux-build, windows-build]
     runs-on: windows-latest
 
     defaults:
