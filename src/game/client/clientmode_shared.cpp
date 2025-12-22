@@ -451,6 +451,9 @@ void ClientModeShared::VGui_Shutdown()
 {
 	delete m_pViewport;
 	m_pViewport = NULL;
+#ifdef NEO
+	delete g_pNeoLoading;
+#endif
 }
 
 
