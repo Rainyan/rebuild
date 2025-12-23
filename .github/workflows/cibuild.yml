@@ -111,24 +111,28 @@ jobs:
       with:
         name: ${{ env.libraries }}
         path: ${{ env.install_dir }}/${{ env.libraries }}
+        compression-level: 9
 
     - name: Upload libraries debug information
       uses: actions/upload-artifact@v4
       with:
         name: ${{ env.libraries_debuginfo }}
         path: ${{ env.install_dir }}/${{ env.libraries_debuginfo }}
+        compression-level: 9
 
     - name: Upload dedicated library
       uses: actions/upload-artifact@v4
       with:
         name: ${{ env.dedicated }}
         path: ${{ env.install_dir }}/${{ env.dedicated }}
+        compression-level: 9
 
     - name: Upload dedicated library debug information
       uses: actions/upload-artifact@v4
       with:
         name: ${{ env.dedicated_debuginfo }}
         path: ${{ env.install_dir }}/${{ env.dedicated_debuginfo }}
+        compression-level: 9
 
     - name: Upload SourceMod gamedata
       if: ${{ matrix.preset_build_type.name == 'release' }}
@@ -136,6 +140,7 @@ jobs:
       with:
         name: ${{ env.gamedata }}
         path: ${{ env.install_dir }}/${{ env.gamedata }}
+        compression-level: 9
 
   windows-build:
     name: ${{ matrix.platform.display_name }} ${{ matrix.preset_build_type.display_name }}
@@ -244,24 +249,28 @@ jobs:
       with:
         name: ${{ env.libraries }}
         path: ${{ env.install_dir }}/${{ env.libraries }}
+        compression-level: 9
 
     - name: Upload libraries debug information
       uses: actions/upload-artifact@v4
       with:
         name: ${{ env.libraries_debuginfo }}
         path: ${{ env.install_dir }}/${{ env.libraries_debuginfo }}
+        compression-level: 9
 
     - name: Upload dedicated library
       uses: actions/upload-artifact@v4
       with:
         name: ${{ env.dedicated }}
         path: ${{ env.install_dir }}/${{ env.dedicated }}
+        compression-level: 9
 
     - name: Upload dedicated library debug information
       uses: actions/upload-artifact@v4
       with:
         name: ${{ env.dedicated_debuginfo }}
         path: ${{ env.install_dir }}/${{ env.dedicated_debuginfo }}
+        compression-level: 9
 
   pack-resources:
     name: Windows Native Resources
@@ -322,6 +331,7 @@ jobs:
       with:
         name: ${{ env.resources }}
         path: ${{ env.install_dir }}/${{ env.resources }}
+        compression-level: 9
 
   upload-latest-build:
     name: Upload Latest Build
