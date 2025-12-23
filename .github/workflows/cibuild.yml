@@ -337,7 +337,7 @@ jobs:
       uses: actions/download-artifact@v4
 
     - name: Packing artifacts
-      run: 'parallel 7z a -tzip -mx=9 "{}.zip" "./{}/*" ::: neo-*'
+      run: 'parallel 7z a -tzip -m0=lzma -mx=9 "{}.zip" "./{}/*" ::: neo-*'
 
     - name: Create & upload latest build
       env:
@@ -366,7 +366,7 @@ jobs:
       run: 'rm -r *-Debug'
 
     - name: Packing artifacts
-      run: 'parallel 7z a -tzip -mx=9 "{= s/neo-(.*)/neo-$GITHUB_REF_NAME-\1.zip/ =}" "./{}/*" ::: neo-*'
+      run: 'parallel 7z a -tzip -m0=lzma -mx=9 "{= s/neo-(.*)/neo-$GITHUB_REF_NAME-\1.zip/ =}" "./{}/*" ::: neo-*'
 
     - name: Upload assets to a release
       env:
