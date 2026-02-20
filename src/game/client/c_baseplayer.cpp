@@ -1416,12 +1416,15 @@ void C_BasePlayer::Flashlight( void )
 {
 	UpdateFlashlight();
 
+#ifndef NEO // NEO NOTE (Rain): the below seems like a (slow) no-op, so it's disabled for now
+
 	// Check for muzzle flash and apply to view model
 	C_BaseAnimating *ve = this;
 	if ( GetObserverMode() == OBS_MODE_IN_EYE )
 	{
 		ve = dynamic_cast< C_BaseAnimating* >( GetObserverTarget() );
 	}
+#endif
 }
 
 
@@ -1583,30 +1586,22 @@ int C_BasePlayer::DrawModel( int flags )
 //-----------------------------------------------------------------------------
 Vector C_BasePlayer::GetChaseCamViewOffset( CBaseEntity *target )
 {
+#ifdef NEO
+	auto* player = ToNEOPlayer(target);
+#else
 	C_BasePlayer *player = ToBasePlayer( target );
+#endif
 	
 	if ( player )
 	{
-#ifdef NEO
-		Assert(dynamic_cast<CNEO_Player*>(player));
-#endif
-
 		if ( player->IsAlive() )
 		{
 			if ( player->GetFlags() & FL_DUCKING )
 			{
-#ifdef NEO
-				return VEC_DUCK_VIEW_SCALED(static_cast<CNEO_Player*>(player));
-#else
 				return VEC_DUCK_VIEW_SCALED(player);
-#endif
 			}
 
-#ifdef NEO
-			return VEC_VIEW_SCALED(static_cast<CNEO_Player*>(player));
-#else
 			return VEC_VIEW_SCALED(player);
-#endif
 		}
 		else
 		{
@@ -1915,13 +1910,10 @@ void C_BasePlayer::CalcInEyeCamView(Vector& eyeOrigin, QAngle& eyeAngles, float&
 #endif
 	{
 		C_BaseAnimating *pTargetAnimating = target->GetBaseAnimating();
-#ifdef NEO
-		Assert(!pTargetAnimating || dynamic_cast<CNEO_Player*>(pTargetAnimating));
-#endif
 		if ( target->GetFlags() & FL_DUCKING )
 		{
 #ifdef NEO
-			eyeOrigin += pTargetAnimating ? VEC_DUCK_VIEW_SCALED(static_cast<CNEO_Player*>(pTargetAnimating)) : VEC_DUCK_VIEW;
+			eyeOrigin += pTargetAnimating ? VEC_DUCK_VIEW_SCALED(assert_cast<CNEO_Player*>(pTargetAnimating)) : VEC_DUCK_VIEW;
 #else
 			eyeOrigin += pTargetAnimating ? VEC_DUCK_VIEW_SCALED(pTargetAnimating) : VEC_DUCK_VIEW;
 #endif
@@ -1929,7 +1921,7 @@ void C_BasePlayer::CalcInEyeCamView(Vector& eyeOrigin, QAngle& eyeAngles, float&
 		else
 		{
 #ifdef NEO
-			eyeOrigin += pTargetAnimating ? VEC_VIEW_SCALED(static_cast<CNEO_Player*>(pTargetAnimating)) : VEC_VIEW;
+			eyeOrigin += pTargetAnimating ? VEC_VIEW_SCALED(assert_cast<CNEO_Player*>(pTargetAnimating)) : VEC_VIEW;
 #else
 			eyeOrigin += pTargetAnimating ? VEC_VIEW_SCALED(pTargetAnimating) : VEC_VIEW;
 #endif
@@ -2594,10 +2586,14 @@ void C_BasePlayer::PhysicsSimulate( void )
 		ctx->cmd.impulse = 0;
 		ctx->cmd.buttons &= ~(IN_ATTACK | IN_JUMP | IN_SPEED |
 			IN_ALT1 | IN_ALT2 | IN_BACK | IN_FORWARD | IN_MOVELEFT | IN_MOVERIGHT | IN_RUN);
-		const bool isTachi = (dynamic_cast<CWeaponTachi*>(GetActiveWeapon()) != NULL);
-		if (!isTachi)
+
+		if (ctx->cmd.buttons & IN_ATTACK2)
 		{
-			ctx->cmd.buttons &= ~IN_ATTACK2;
+			const auto* wep = assert_cast<CNEOBaseCombatWeapon*>(GetActiveWeapon());
+			if (!(wep && (wep->GetNeoWepBits() & NEO_WEP_TACHI)))
+			{
+				ctx->cmd.buttons &= ~IN_ATTACK2;
+			}
 		}
 	}
 #endif
@@ -2684,7 +2680,14 @@ float C_BasePlayer::GetFOV( void )
 #else
 	if (GetObserverMode() == OBS_MODE_IN_EYE)
 	{
-		auto *pTargetPlayer = dynamic_cast<CNEO_Player *>(GetObserverTarget());
+		CNEO_Player* pTargetPlayer = nullptr;
+		if (auto* pTarget = GetObserverTarget())
+		{
+			if (pTarget->IsPlayer())
+			{
+				pTargetPlayer = assert_cast<CNEO_Player*>(pTarget);
+			}
+		}
 
 		// get fov from observer target. Not if target is observer itself
 		if (pTargetPlayer && !pTargetPlayer->IsObserver())

@@ -157,7 +157,19 @@ void UpdateThermalOverride()
 	}
 	else if (localPlayer->GetObserverMode() == OBS_MODE_IN_EYE)
 	{
-		auto targetPlayer = dynamic_cast<C_NEO_Player*>(localPlayer->GetObserverTarget());
+		C_NEO_Player* targetPlayer;
+		if (auto* obsTarget = localPlayer->GetObserverTarget())
+		{
+			if (obsTarget && obsTarget->IsPlayer())
+				targetPlayer = assert_cast<C_NEO_Player*>(obsTarget);
+			else
+				targetPlayer = nullptr;
+		}
+		else
+		{
+			targetPlayer = nullptr;
+		}
+
 		if (targetPlayer && targetPlayer->IsAlive())
 		{
 			if (targetPlayer->GetClass() == NEO_CLASS_SUPPORT && targetPlayer->IsInVision())

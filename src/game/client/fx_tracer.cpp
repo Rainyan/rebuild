@@ -63,7 +63,15 @@ Vector GetTracerOrigin( const CEffectData &data )
 			return vecStart;
 #endif
 
+#ifdef NEO
+		C_BaseCombatWeapon* pWpn;
+		if (pEnt && pEnt->IsBaseCombatWeapon())
+			pWpn = assert_cast<C_BaseCombatWeapon*>(pEnt);
+		else
+			pWpn = nullptr;
+#else
 		C_BaseCombatWeapon *pWpn = dynamic_cast<C_BaseCombatWeapon *>( pEnt );
+#endif
 		if ( pWpn && pWpn->ShouldDrawUsingViewModel() )
 		{
 			C_BasePlayer *player = ToBasePlayer( pWpn->GetOwner() );
@@ -170,7 +178,11 @@ void ParticleTracerCallback( const CEffectData &data )
 
 	if ( !r_drawtracers_firstperson.GetBool() )
 	{
+#ifdef NEO
+		C_BasePlayer *pPlayer = EffectPlayerSource( data );
+#else
 		C_BasePlayer *pPlayer = dynamic_cast<C_BasePlayer*>( data.GetEntity() );
+#endif
 
 		if ( pPlayer && !pPlayer->ShouldDrawThisPlayer() )
 			return;

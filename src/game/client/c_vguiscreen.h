@@ -69,6 +69,10 @@ public:
 	C_VGuiScreen();
 	~C_VGuiScreen();
 
+#ifdef NEO
+	virtual bool IsVguiScreen() const final { return true; };
+#endif
+
 	virtual void PreDataUpdate( DataUpdateType_t updateType );
 	virtual void OnDataChanged( DataUpdateType_t type );
 	virtual int DrawModel( int flags );

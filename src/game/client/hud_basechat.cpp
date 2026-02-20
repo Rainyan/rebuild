@@ -1027,7 +1027,11 @@ void CBaseHudChat::MsgFunc_VoiceSubtitle( bf_read &msg )
 
 	CGameRules *pGameRules = GameRules();
 
+#ifdef NEO
+	CMultiplayRules *pMultiRules = assert_cast< CMultiplayRules * >( pGameRules );
+#else
 	CMultiplayRules *pMultiRules = dynamic_cast< CMultiplayRules * >( pGameRules );
+#endif
 
 	Assert( pMultiRules );
 
@@ -1489,7 +1493,11 @@ void CBaseHudChatLine::InsertAndColorizeText( wchar_t *buf, int clientIndex )
 
 	m_text = CloneWString(buf);
 
+#ifdef NEO
+	CBaseHudChat *pChat = assert_cast<CBaseHudChat*>(GetParent() );
+#else
 	CBaseHudChat *pChat = dynamic_cast<CBaseHudChat*>(GetParent() );
+#endif
 
 	if ( pChat == NULL )
 		return;

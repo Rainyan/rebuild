@@ -137,8 +137,18 @@ void CNEOHud_GhostMarker::DrawNeoHudElement()
 		if (!hideGhostMarker && (localPlayer->GetObserverMode() == OBS_MODE_IN_EYE))
 		{
 			// NEO NOTE (nullsystem): Skip this if we're observing a player in first person
-			auto* pTargetPlayer = dynamic_cast<C_NEO_Player*>(localPlayer->GetObserverTarget());
-			hideGhostMarker = (pTargetPlayer && !pTargetPlayer->IsObserver() && pTargetPlayer->IsCarryingGhost());
+			if (auto* obsTarget = localPlayer->GetObserverTarget(); obsTarget && obsTarget->IsPlayer())
+			{
+				auto* pTargetPlayer = assert_cast<C_NEO_Player*>(obsTarget);
+				if (!pTargetPlayer->IsObserver())
+				{
+					hideGhostMarker = pTargetPlayer->IsCarryingGhost();
+				}
+				else
+				{
+					AssertMsg(false, "Observing an observer??");
+				}
+			}
 		}
 		if (hideGhostMarker)
 		{

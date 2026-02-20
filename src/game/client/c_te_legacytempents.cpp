@@ -422,6 +422,33 @@ bool C_LocalTempEntity::Frame( float frametime, int framenumber )
 
 				UTIL_TraceLine( vPrevOrigin, GetLocalOrigin(), MASK_SOLID, GetOwnerEntity(), collisionGroup, &trace );
 
+#ifdef NEO
+				if ( (flags & FTENT_COLLIDEPROPS) && trace.m_pEnt )
+				{
+					// Same as SDK path, but reordered to do this faster check first.
+					// It's non-const but realistically it's not going to mutate the state used here regardless of the order.
+					if ( !trace.m_pEnt->IsWorld() )
+					{
+						bool bIsDynamicProp = ( NULL != dynamic_cast<CDynamicProp *>( trace.m_pEnt ) );
+						// If it's a dynamic prop, it can't be a door - skip the second dynamic_cast...
+						bool bIsDoor = ( !bIsDynamicProp ) && ( NULL != dynamic_cast<CBaseDoor *>( trace.m_pEnt ) );
+						// ...assuming this holds true.
+						static_assert(!std::derived_from<CDynamicProp, CBaseDoor>);
+						static_assert(!std::derived_from<CBaseDoor, CDynamicProp>);
+						if ( !bIsDynamicProp && !bIsDoor ) // Die on props, doors, and the world.
+							return true;
+					}
+				}
+#else
+				if ( (flags & FTENT_COLLIDEPROPS) && trace.m_pEnt )
+				{
+					bool bIsDynamicProp = ( NULL != dynamic_cast<CDynamicProp *>( trace.m_pEnt ) );
+					bool bIsDoor = ( !bIsDynamicProp ) && ( NULL != dynamic_cast<CBaseDoor *>( trace.m_pEnt ) );
+					if ( !bIsDynamicProp && !bIsDoor && !trace.m_pEnt->IsWorld() ) // Die on props, doors, and the world.
+						return true;
+				}
+#endif
+
 				if ( (flags & FTENT_COLLIDEPROPS) && trace.m_pEnt )
 				{
 					bool bIsDynamicProp = ( NULL != dynamic_cast<CDynamicProp *>( trace.m_pEnt ) );
@@ -503,11 +530,23 @@ bool C_LocalTempEntity::Frame( float frametime, int framenumber )
 
 				if ( pClient )
 				{
+#ifdef NEO
+					if (clientIndex > 0 && clientIndex <= MAX_PLAYERS)
+					{
+						C_BasePlayer *pPlayer = assert_cast<C_BasePlayer*>(pClient);
+						data.m_nDamageType = pPlayer->GetTeamNumber();
+					}
+					else
+					{
+						AssertMsg2(false, "pClient is non-null but clientIndex %d was not in expected range 1-%d", clientIndex, MAX_PLAYERS);
+					}
+#else
 					C_BasePlayer *pPlayer = dynamic_cast<C_BasePlayer*>(pClient);
 					if( pPlayer )
 					{
 						data.m_nDamageType = pPlayer->GetTeamNumber();
 					}
+#endif
 				}
 
 				if ( trace.m_pEnt )

@@ -372,34 +372,15 @@ void CNEOBaseCombatWeapon::Equip(CBaseCombatCharacter* pOwner)
 
 bool CNEOBaseCombatWeapon::Reload( void )
 {
-	return BaseClass::Reload();
-
-#if(0)
-	CBasePlayer *pOwner = ToBasePlayer( GetOwner() );
-	if (!pOwner)
+	if (DefaultReload( GetMaxClip1(), GetMaxClip2(), ACT_VM_RELOAD))
 	{
-		return false;
+		if (auto* owner = ToNEOPlayer(GetOwner()))
+		{
+			owner->DoAnimationEvent(PLAYERANIMEVENT_RELOAD);
+		}
+		return true;
 	}
-
-	if (pOwner->m_afButtonPressed & IN_RELOAD)
-	{
-		return DefaultReload( GetMaxClip1(), GetMaxClip2(), ACT_VM_RELOAD );
-	}
-
-#ifdef CLIENT_DLL
-	if (!ClientWantsAutoReload())
-	{
-		return false;
-	}
-#else
-	if (!ClientWantsAutoReload(pOwner))
-	{
-		return false;
-	}
-#endif
-
-	return DefaultReload( GetMaxClip1(), GetMaxClip2(), ACT_VM_RELOAD );
-#endif
+	return false;
 }
 
 

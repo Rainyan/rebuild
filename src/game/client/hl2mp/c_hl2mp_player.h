@@ -188,6 +188,10 @@ private:
 
 inline C_HL2MP_Player *ToHL2MPPlayer( CBaseEntity *pEntity )
 {
+#ifdef NEO
+	AssertMsg(false, "Use ToNEOPlayer instead");
+#endif
+
 	if ( !pEntity || !pEntity->IsPlayer() )
 		return NULL;
 

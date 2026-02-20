@@ -234,7 +234,16 @@ void CC_AI_Hull( const CCommand &args )
 		}
 	}
 
+#ifdef NEO
+	CAI_BaseNPC* pNPC;
+	Assert(pEnt);
+	if (pEnt->IsNPC())
+		pNPC = assert_cast<CAI_BaseNPC*>(pEnt);
+	else
+		pNPC = nullptr;
+#else
 	CAI_BaseNPC *pNPC = dynamic_cast<CAI_BaseNPC *>( pEnt );
+#endif
 	if ( !pNPC )
 	{
 		DevMsg( "Entity %s is not an NPC.\n", pEnt->GetDebugName() );

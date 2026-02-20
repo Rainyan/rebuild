@@ -49,6 +49,18 @@ public:
 	virtual bool ShouldHitEntity( IHandleEntity *pServerEntity, int contentsMask )
 	{
 		C_BaseEntity *pEntity = EntityFromEntityHandle( pServerEntity );
+#ifdef NEO
+		if (!pEntity)
+			return false;
+
+		Assert( ( dynamic_cast<C_BasePlayer*>(pEntity) != nullptr ) == ( pEntity->IsPlayer() ) );
+
+		if (pEntity->IsPlayer())
+			return false;
+		if (dynamic_cast<C_BaseViewModel*>(pEntity) != nullptr)
+			return false;
+		return true;
+#else
 		if( pEntity &&
 			( ( dynamic_cast<C_BaseViewModel *>( pEntity ) != NULL ) ||
 			( dynamic_cast<C_BasePlayer *>( pEntity ) != NULL ) ) )
@@ -59,6 +71,7 @@ public:
 		{
 			return true;
 		}
+#endif
 	}
 };
 
@@ -74,19 +87,25 @@ void C_TEHL2MPFireBullets::CreateEffects( void )
 	if ( pEnt )
 	{
 #ifdef NEO
-		C_NEO_Player *pPlayer = dynamic_cast<C_NEO_Player *>(pEnt);
+		C_NEO_Player *pPlayer = assert_cast<C_NEO_Player *>(pEnt);
 #else
 		C_BasePlayer *pPlayer = dynamic_cast<C_BasePlayer *>(pEnt);
 #endif
+#ifdef NEO
+		if ( pPlayer->GetActiveWeapon() )
+#else
 		if ( pPlayer && pPlayer->GetActiveWeapon() )
+#endif
 		{
 #ifdef NEO
-			CNEOBaseCombatWeapon *pWpn = dynamic_cast<CNEOBaseCombatWeapon *>( pPlayer->GetActiveWeapon() );
+			CNEOBaseCombatWeapon *pWpn = assert_cast<CNEOBaseCombatWeapon *>( pPlayer->GetActiveWeapon() );
 #else
 			C_BaseCombatWeapon *pWpn = dynamic_cast<C_BaseCombatWeapon *>( pPlayer->GetActiveWeapon() );
 #endif		
 
+#ifndef NEO
 			if ( pWpn )
+#endif
 			{
 				int iSeed = m_iSeed;
 					

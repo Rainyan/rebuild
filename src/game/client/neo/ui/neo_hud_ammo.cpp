@@ -96,7 +96,7 @@ void CNEOHud_Ammo::DrawAmmo() const
 {
 	Assert(C_NEO_Player::GetLocalNEOPlayer());
 
-	C_NEOBaseCombatWeapon* activeWep = dynamic_cast<C_NEOBaseCombatWeapon*>(C_NEO_Player::GetLocalNEOPlayer()->GetActiveWeapon());
+	C_NEOBaseCombatWeapon* activeWep = assert_cast<C_NEOBaseCombatWeapon*>(C_NEO_Player::GetLocalNEOPlayer()->GetActiveWeapon());
 	if (!activeWep)
 		return;
 
@@ -179,7 +179,7 @@ void CNEOHud_Ammo::DrawAmmo() const
 			if(activeWep->IsAutomatic())
 				fireModeText[0] = 'j';
 			else if(isSupa)
-				if(dynamic_cast<CWeaponSupa7*>(activeWep)->SlugLoaded())
+				if(assert_cast<CWeaponSupa7*>(activeWep)->SlugLoaded())
 					fireModeText[0] = 'h';
 				else
 					fireModeText[0] = 'l';

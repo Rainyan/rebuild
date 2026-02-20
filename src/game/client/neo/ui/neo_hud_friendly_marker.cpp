@@ -139,18 +139,25 @@ void CNEOHud_FriendlyMarker::DrawNeoHudElement()
 	}
 
 	const bool isSpectator = team->GetTeamNumber() == TEAM_SPECTATOR;
-	const auto *pTargetPlayer = (localPlayer->GetObserverMode() == OBS_MODE_IN_EYE) ?
-				dynamic_cast<C_NEO_Player *>(localPlayer->GetObserverTarget()) : nullptr;
+
+	C_NEO_Player* pTargetPlayer;
+	if (localPlayer->GetObserverMode() == OBS_MODE_IN_EYE)
+	{
+		auto* obsTarget = localPlayer->GetObserverTarget();
+		if (obsTarget && obsTarget->IsPlayer())
+			pTargetPlayer = assert_cast<C_NEO_Player*>(obsTarget);
+		else
+			pTargetPlayer = nullptr;
+	}
+	else
+		pTargetPlayer = nullptr;
 	
 	if (NEORules()->IsTeamplay())
 	{
 		if (isSpectator)
 		{
-			auto nsf = GetGlobalTeam(TEAM_NSF);
-			DrawPlayerForTeam(nsf, localPlayer, pTargetPlayer);
-
-			auto jinrai = GetGlobalTeam(TEAM_JINRAI);
-			DrawPlayerForTeam(jinrai, localPlayer, pTargetPlayer);
+			DrawPlayerForTeam(GetGlobalTeam(TEAM_NSF), localPlayer, pTargetPlayer);
+			DrawPlayerForTeam(GetGlobalTeam(TEAM_JINRAI), localPlayer, pTargetPlayer);
 		}
 		else
 		{
@@ -162,11 +169,8 @@ void CNEOHud_FriendlyMarker::DrawNeoHudElement()
 		if (isSpectator)
 		{
 			// TODO: They're not really Jinrai/NSF?
-			auto nsf = GetGlobalTeam(TEAM_NSF);
-			DrawPlayerForTeam(nsf, localPlayer, pTargetPlayer);
-
-			auto jinrai = GetGlobalTeam(TEAM_JINRAI);
-			DrawPlayerForTeam(jinrai, localPlayer, pTargetPlayer);
+			DrawPlayerForTeam(GetGlobalTeam(TEAM_NSF), localPlayer, pTargetPlayer);
+			DrawPlayerForTeam(GetGlobalTeam(TEAM_JINRAI), localPlayer, pTargetPlayer);
 		}
 	}
 }
@@ -174,6 +178,8 @@ void CNEOHud_FriendlyMarker::DrawNeoHudElement()
 void CNEOHud_FriendlyMarker::DrawPlayerForTeam(C_Team *team, const C_NEO_Player *localPlayer,
 											   const C_NEO_Player *pTargetPlayer) const
 {
+	Assert(team);
+	Assert(localPlayer);
 	auto memberCount = team->GetNumPlayers();
 	auto teamColour = GetTeamColour(team->GetTeamNumber());
 	for (int i = 0; i < memberCount; ++i)

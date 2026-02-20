@@ -42,7 +42,15 @@ extern ConVar cl_npc_speedmod_intime;
 
 bool NPC_IsImportantNPC( C_BaseAnimating *pAnimating )
 {
+#ifdef NEO
+	C_AI_BaseNPC* pBaseNPC;
+	if (pAnimating && pAnimating->IsNPC())
+		pBaseNPC = assert_cast < C_AI_BaseNPC* > ( pAnimating );
+	else
+		pBaseNPC = nullptr;
+#else
 	C_AI_BaseNPC *pBaseNPC = dynamic_cast < C_AI_BaseNPC* > ( pAnimating );
+#endif
 
 	if ( pBaseNPC == NULL )
 		return false;

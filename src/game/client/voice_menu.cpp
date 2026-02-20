@@ -61,7 +61,11 @@ void OpenVoiceMenu( int index )
 	{
 		KeyValues *pKV = new KeyValues( "MenuItems" );
 
+#ifdef NEO
+		CMultiplayRules *pRules = assert_cast< CMultiplayRules * >( GameRules() );
+#else
 		CMultiplayRules *pRules = dynamic_cast< CMultiplayRules * >( GameRules() );
+#endif
 		if ( pRules )
 		{			
 			if ( !pRules->GetVoiceMenuLabels( index-1, pKV ) )

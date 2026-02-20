@@ -1310,7 +1310,14 @@ void CAI_FollowBehavior::GetFollowTargetViewLoc( Vector *pResult )
 
 		CBasePlayer *pPlayer;
 
+#ifdef NEO
+		if (auto* target = m_hFollowTarget.Get(); target && target->IsPlayer())
+			pPlayer = assert_cast<CBasePlayer*>(target);
+		else
+			pPlayer = nullptr;
+#else
 		pPlayer = dynamic_cast<CBasePlayer *>(m_hFollowTarget.Get());
+#endif
 
 		if( pPlayer )
 		{
