@@ -1939,7 +1939,15 @@ bool C_RopeKeyframe::CalculateEndPointAttachment( C_BaseEntity *pEnt, int iAttac
 
 	if ( m_RopeFlags & ROPE_PLAYER_WPN_ATTACH )
 	{
+#ifdef NEO
+		C_BasePlayer *pPlayer;
+		if (pEnt->IsPlayer())
+			pPlayer = assert_cast< C_BasePlayer* >( pEnt );
+		else
+			pPlayer = nullptr;
+#else
 		C_BasePlayer *pPlayer = dynamic_cast< C_BasePlayer* >( pEnt );
+#endif
 		if ( pPlayer )
 		{
 			C_BaseAnimating *pModel = pPlayer->GetRenderedWeaponModel();

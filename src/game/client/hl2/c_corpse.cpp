@@ -42,7 +42,11 @@ int C_Corpse::DrawModel( int flags )
 		return 0;
 
 	// get copy of player
+#ifdef NEO
+	C_BasePlayer *player = assert_cast< C_BasePlayer *>( cl_entitylist->GetEnt( m_nReferencePlayer ) );
+#else
 	C_BasePlayer *player = dynamic_cast< C_BasePlayer *>( cl_entitylist->GetEnt( m_nReferencePlayer ) );
+#endif
 	if ( player )
 	{
 		Vector zero;

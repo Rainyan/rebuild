@@ -134,7 +134,7 @@ void CNEOHud_KillerDamageInfo::resetHUDState()
 	V_memset(&g_neoKDmgInfos, 0, sizeof(CNEOKillerDamageInfos));
 	for (int pIdx = 1; pIdx <= gpGlobals->maxClients; ++pIdx)
 	{
-		auto *neoAttacker = dynamic_cast<C_NEO_Player *>(UTIL_PlayerByIndex(pIdx));
+		auto *neoAttacker = assert_cast<C_NEO_Player *>(UTIL_PlayerByIndex(pIdx));
 		if (neoAttacker)
 		{
 			for (int i = 0; i < MAX_PLAYERS_ARRAY_SAFE; ++i)
@@ -232,7 +232,7 @@ void CNEOHud_KillerDamageInfo::UpdateStateForNeoHudElementDraw()
 			continue;
 		}
 
-		auto *neoAttacker = dynamic_cast<C_NEO_Player *>(UTIL_PlayerByIndex(pIdx));
+		auto *neoAttacker = assert_cast<C_NEO_Player *>(UTIL_PlayerByIndex(pIdx));
 		if (!neoAttacker || neoAttacker->IsHLTV())
 		{
 			continue;

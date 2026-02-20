@@ -173,10 +173,14 @@ inline C_BaseCombatCharacter *ToBaseCombatCharacter( C_BaseEntity *pEntity )
 	if ( !pEntity || !pEntity->IsBaseCombatCharacter() )
 		return NULL;
 
+#ifdef NEO
+	return assert_cast<C_BaseCombatCharacter *>( pEntity );
+#else
 #if _DEBUG
 	return dynamic_cast<C_BaseCombatCharacter *>( pEntity );
 #else
 	return static_cast<C_BaseCombatCharacter *>( pEntity );
+#endif
 #endif
 }
 

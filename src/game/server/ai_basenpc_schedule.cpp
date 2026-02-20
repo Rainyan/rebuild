@@ -2295,7 +2295,15 @@ void CAI_BaseNPC::StartTask( const Task_t *pTask )
 				{
 					// The gun is too far away from its nearest node on the Z axis.
 					TaskFail( "Target not within Z_LENIENCY!\n");
+#ifdef NEO
+					CBaseCombatWeapon* pWeapon;
+					if (auto* ent = m_hTargetEnt.Get(); ent && ent->IsBaseCombatWeapon())
+						pWeapon = assert_cast<CBaseCombatWeapon*>(ent);
+					else
+						pWeapon = nullptr;
+#else
 					CBaseCombatWeapon *pWeapon = dynamic_cast<CBaseCombatWeapon*>( m_hTargetEnt.Get() );
+#endif
 					if( pWeapon )
 					{
 						// Lock this weapon for a long time so no one else tries to get it.
@@ -2314,7 +2322,15 @@ void CAI_BaseNPC::StartTask( const Task_t *pTask )
 					if( flDistXY > XY_LENIENCY )
 					{
 						TaskFail( "Target not within XY_LENIENCY!\n" );
+#ifdef NEO
+						CBaseCombatWeapon* pWeapon;
+						if (auto* ent = m_hTargetEnt.Get(); ent && ent->IsBaseCombatWeapon())
+							pWeapon = assert_cast<CBaseCombatWeapon*>(ent);
+						else
+							pWeapon = nullptr;
+#else
 						CBaseCombatWeapon *pWeapon = dynamic_cast<CBaseCombatWeapon*>( m_hTargetEnt.Get() );
+#endif
 						if( pWeapon )
 						{
 							// Lock this weapon for a long time so no one else tries to get it.
@@ -2337,7 +2353,15 @@ void CAI_BaseNPC::StartTask( const Task_t *pTask )
 
 				if( !bHasPath )
 				{
+#ifdef NEO
+					CBaseCombatWeapon* pWeapon;
+					if (auto* ent = m_hTargetEnt.Get(); ent && ent->IsBaseCombatWeapon())
+						pWeapon = assert_cast<CBaseCombatWeapon*>(ent);
+					else
+						pWeapon = nullptr;
+#else
 					CBaseCombatWeapon *pWeapon = dynamic_cast<CBaseCombatWeapon*>( m_hTargetEnt.Get() );
+#endif
 					if( pWeapon )
 					{
 						// Lock this weapon for a long time so no one else tries to get it.
@@ -2984,7 +3008,15 @@ void CAI_BaseNPC::StartTask( const Task_t *pTask )
 
 			if( GetTarget() )
 			{
+#ifdef NEO
+				CBaseCombatWeapon* pWeapon;
+				if (auto* target = GetTarget(); target && target->IsBaseCombatWeapon())
+					pWeapon = assert_cast<CBaseCombatWeapon*>(target);
+				else
+					pWeapon = nullptr;
+#else
 				CBaseCombatWeapon *pWeapon = dynamic_cast<CBaseCombatWeapon*>(GetTarget());
+#endif
 				if( pWeapon )
 				{
 					if( Weapon_IsOnGround( pWeapon ) )
@@ -3011,7 +3043,15 @@ void CAI_BaseNPC::StartTask( const Task_t *pTask )
 			if( !GetActiveWeapon() && GetTarget() )
 			{
 				// Create a copy of the weapon this NPC is trying to pick up.
+#ifdef NEO
+				CBaseCombatWeapon* pTargetWeapon;
+				if (auto* target = GetTarget(); target && target->IsBaseCombatWeapon())
+					pTargetWeapon = assert_cast<CBaseCombatWeapon*>(target);
+				else
+					pTargetWeapon = nullptr;
+#else
 				CBaseCombatWeapon *pTargetWeapon = dynamic_cast<CBaseCombatWeapon*>(GetTarget());
+#endif
 
 				if( pTargetWeapon )
 				{
@@ -4065,7 +4105,20 @@ void CAI_BaseNPC::RunTask( const Task_t *pTask )
 		{
 			if ( IsActivityFinished() )
 			{
+#ifdef NEO
+				CBaseCombatWeapon* pWeapon;
+				if (auto* ent = m_hTargetEnt.Get(); ent && ent->IsBaseCombatWeapon())
+				{
+					pWeapon = assert_cast<CBaseCombatWeapon*>(ent);
+				}
+				else
+				{
+					Assert(false);
+					break;
+				}
+#else
 				CBaseCombatWeapon	 *pWeapon = dynamic_cast<CBaseCombatWeapon *>(	(CBaseEntity *)m_hTargetEnt);
+#endif
 				CBaseCombatCharacter *pOwner  = pWeapon->GetOwner();
 				if ( !pOwner )
 				{

@@ -32,6 +32,10 @@
 #include <vgui/IInputInternal.h>
 extern vgui::IInputInternal *g_InputInternal;
 
+#ifdef NEO
+#include "vprof.h"
+#endif
+
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
@@ -612,12 +616,20 @@ private:
 
 IterationRetval_t CVGuiScreenEnumerator::EnumElement( IHandleEntity *pHandleEntity )
 {
+#ifdef NEO
+	VPROF_BUDGET( __FUNCTION__, VPROF_BUDGETGROUP_OTHER_VGUI );
+#endif
 	C_BaseEntity *pEnt = ClientEntityList().GetBaseEntityFromHandle( pHandleEntity->GetRefEHandle() );
 	if ( pEnt == NULL )
 		return ITERATION_CONTINUE;
 
+#ifdef NEO
+	// Still dynamic dispatch but at least no RTTI
+	C_VGuiScreen* pScreen = pEnt->IsVguiScreen() ? assert_cast<C_VGuiScreen*>(pEnt) : nullptr;
+#else
 	// FIXME.. pretty expensive...
 	C_VGuiScreen *pScreen = dynamic_cast<C_VGuiScreen*>(pEnt); 
+#endif
 	if ( pScreen )
 	{
 		int i = m_VguiScreens.AddToTail( );
@@ -796,7 +808,13 @@ bool CVGuiScreenPanel::Init( KeyValues* pKeyValues, VGuiScreenInitData_t* pInitD
 	{
 		m_hEntity.Set( pInitData->m_pEntity );
 
+#ifdef NEO
+		C_VGuiScreen* screen = (pInitData->m_pEntity && pInitData->m_pEntity->IsVguiScreen())
+			? assert_cast<C_VGuiScreen*>(pInitData->m_pEntity)
+			: nullptr;
+#else
 		C_VGuiScreen *screen = dynamic_cast< C_VGuiScreen * >( pInitData->m_pEntity );
+#endif
 		if ( screen )
 		{
 			bool acceptsInput = pKeyValues->GetInt( "acceptsinput", 1 ) ? true : false;

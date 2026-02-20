@@ -617,8 +617,32 @@ void CSteamShareSystem::FireGameEvent( IGameEvent *event )
 	{
 		int nWeaponEntindex = event->GetInt( "entindex" );
 		int nOwnerEntIndex = event->GetInt( "owner_entindex" );
+#ifdef NEO
+		C_BaseCombatWeapon* pWeapon;
+		if (auto* ent = ClientEntityList().GetEnt( nWeaponEntindex ))
+		{
+			if (ent->IsBaseCombatWeapon())
+				pWeapon = assert_cast<C_BaseCombatWeapon*>(ent);
+			else
+				pWeapon = nullptr;
+		}
+		else
+			pWeapon = nullptr;
+
+		C_BasePlayer* pOwner;
+		if (auto* ent = ClientEntityList().GetEnt( nOwnerEntIndex ))
+		{
+			if (ent->IsPlayer())
+				pOwner = assert_cast<C_BasePlayer*>(ent);
+			else
+				pOwner = nullptr;
+		}
+		else
+			pOwner = nullptr;
+#else
 		C_BaseCombatWeapon* pWeapon = dynamic_cast<C_BaseCombatWeapon *>( ClientEntityList().GetEnt( nWeaponEntindex ) );
 		C_BasePlayer* pOwner = dynamic_cast<C_BasePlayer *>( ClientEntityList().GetEnt( nOwnerEntIndex ) );
+#endif
 		if ( pWeapon && pOwner && pOwner == C_BasePlayer::GetLocalPlayer() && ShouldHaveLocalPlayerPickupTimelineEvents() )
 		{
 			const char* pchWeaponName = "weapon";

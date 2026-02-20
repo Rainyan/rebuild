@@ -71,15 +71,17 @@ void CNEOHud_Compass::Paint()
 static C_NEO_Player *GetFirstPersonPlayer()
 {
 	C_NEO_Player *pFPPlayer = C_NEO_Player::GetLocalNEOPlayer();
-	if (pFPPlayer->GetObserverMode() == OBS_MODE_IN_EYE)
-	{
-		auto *pTargetPlayer = dynamic_cast<C_NEO_Player *>(pFPPlayer->GetObserverTarget());
-		if (pTargetPlayer && !pTargetPlayer->IsObserver())
-		{
-			pFPPlayer = pTargetPlayer;
-		}
-	}
-	return pFPPlayer;
+	Assert(pFPPlayer);
+
+	if (pFPPlayer->GetObserverMode() != OBS_MODE_IN_EYE)
+		return pFPPlayer;
+
+	auto* pTarget = pFPPlayer->GetObserverTarget();
+	if (!pTarget || !pTarget->IsPlayer())
+		return pFPPlayer;
+
+	auto* pTargetPlayer = assert_cast<C_NEO_Player*>(pTarget);
+	return pTargetPlayer->IsObserver() ? pFPPlayer : pTargetPlayer;
 }
 
 static float safeAngle(float angle) {

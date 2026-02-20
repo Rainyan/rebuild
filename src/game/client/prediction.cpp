@@ -934,7 +934,16 @@ void CPrediction::RunCommand( C_BasePlayer *player, CUserCmd *ucmd, IMoveHelper 
 	// Do weapon selection
 	if ( ucmd->weaponselect != 0 )
 	{
+#ifdef NEO
+		C_BaseCombatWeapon *weapon;
+		auto* ent = CBaseEntity::Instance(ucmd->weaponselect);
+		if (ent && ent->IsBaseCombatWeapon())
+			weapon = assert_cast<C_BaseCombatWeapon*>(ent);
+		else
+			weapon = nullptr;
+#else
 		C_BaseCombatWeapon *weapon = dynamic_cast< C_BaseCombatWeapon * >( CBaseEntity::Instance( ucmd->weaponselect ) );
+#endif
 		if ( weapon )
 		{
 			player->SelectItem( weapon->GetName(), ucmd->weaponsubtype );

@@ -2530,8 +2530,11 @@ void DoEnginePostProcessing( int x, int y, int w, int h, bool bFlashlightIsOn, b
 	{
 		if (target->GetObserverMode() == OBS_MODE_IN_EYE)
 		{
-			AssertMsg(!target->GetObserverTarget() || dynamic_cast<C_NEO_Player*>(target->GetObserverTarget()), "can't cast obs target into neo player");
-			target = static_cast<C_NEO_Player*>(target->GetObserverTarget());
+			// Assuming only players are valid in-eye observer targets.
+			// If that assumption ever changes, this assert_cast will assert.
+			target = assert_cast<C_NEO_Player*>(target->GetObserverTarget());
+
+			AssertMsg(target, "Local player was in in-eye observer mode but had no observing target");
 		}
 		if (target && target->IsInVision()) // don't want HDR to interfere with vision effects
 		{

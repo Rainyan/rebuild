@@ -79,6 +79,10 @@ private:
 
 inline C_SDKPlayer* ToSDKPlayer( CBaseEntity *pPlayer )
 {
+#ifdef NEO
+	static_assert(false, "Didn't expect to compile this file.");
+#endif
+
 	Assert( dynamic_cast< C_SDKPlayer* >( pPlayer ) != NULL );
 	return static_cast< C_SDKPlayer* >( pPlayer );
 }

@@ -6828,7 +6828,15 @@ void C_BaseAnimating::NotifyBoneAttached( C_BaseAnimating* attachTarget )
 	m_pAttachedTo = attachTarget;
 
 	// Special case: if we just attached to the local player and he is hidden, hide us as well.
+#ifdef NEO
+	C_BasePlayer* pPlayer;
+	if (attachTarget && attachTarget->IsPlayer())
+		pPlayer = assert_cast<C_BasePlayer*>(attachTarget);
+	else
+		pPlayer = nullptr;
+#else
 	C_BasePlayer *pPlayer = dynamic_cast<C_BasePlayer*>(attachTarget);
+#endif
 	if ( pPlayer && pPlayer->IsLocalPlayer() )
 	{
 		if ( !C_BasePlayer::ShouldDrawLocalPlayer() )

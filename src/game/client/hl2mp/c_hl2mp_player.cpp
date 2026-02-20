@@ -1324,7 +1324,11 @@ void C_HL2MPRagdoll::CreateHL2MPRagdoll( void )
 {
 	// First, initialize all our data. If we have the player's entity on our client,
 	// then we can make ourselves start out exactly where the player is.
+#ifdef NEO
+	C_HL2MP_Player *pPlayer = assert_cast< C_HL2MP_Player* >( m_hPlayer.Get() );
+#else
 	C_HL2MP_Player *pPlayer = dynamic_cast< C_HL2MP_Player* >( m_hPlayer.Get() );
+#endif
 	
 	if ( pPlayer && !pPlayer->IsDormant() )
 	{
@@ -1529,7 +1533,11 @@ public:
 	virtual void PostDataUpdate( DataUpdateType_t updateType )
 	{
 		// Create the effect.
+#ifdef NEO
+		C_HL2MP_Player *pPlayer = assert_cast< C_HL2MP_Player* >( m_hPlayer.Get() );
+#else
 		C_HL2MP_Player *pPlayer = dynamic_cast< C_HL2MP_Player* >( m_hPlayer.Get() );
+#endif
 		if ( pPlayer && !pPlayer->IsDormant() )
 		{
 			pPlayer->DoAnimationEvent( (PlayerAnimEvent_t)m_iEvent.Get(), m_nData );

@@ -780,7 +780,15 @@ int CAI_BaseNPC::OnTakeDamage_Alive( const CTakeDamageInfo &info )
 		else
 		{
 			// See if the person that injured me is an NPC.
+#ifdef NEO
+			CAI_BaseNPC* pAttacker;
+			if (auto* attacker = info.GetAttacker(); attacker && attacker->IsNPC())
+				pAttacker = assert_cast<CAI_BaseNPC*>(attacker);
+			else
+				pAttacker = nullptr;
+#else
 			CAI_BaseNPC *pAttacker = dynamic_cast<CAI_BaseNPC *>( info.GetAttacker() );
+#endif
 			CBasePlayer *pPlayer = AI_GetSinglePlayer();
 
 			if( pAttacker && pAttacker->IsAlive() && pPlayer )
@@ -1446,7 +1454,11 @@ void CAI_BaseNPC::FireBullets( const FireBulletsInfo_t &info )
 	// If we're shooting at a bullseye, become perfectly accurate if the bullseye demands it
 	if ( GetEnemy() && GetEnemy()->Classify() == CLASS_BULLSEYE )
 	{
+#ifdef NEO
+		CNPC_Bullseye *pBullseye = assert_cast<CNPC_Bullseye*>(GetEnemy());
+#else
 		CNPC_Bullseye *pBullseye = dynamic_cast<CNPC_Bullseye*>(GetEnemy()); 
+#endif
 		if ( pBullseye && pBullseye->UsePerfectAccuracy() )
 		{
 			FireBulletsInfo_t accurateInfo = info;
@@ -2220,6 +2232,10 @@ float	CAI_BaseNPC::GetHintDelay( short sHintType )
 //-----------------------------------------------------------------------------
 CBaseGrenade* CAI_BaseNPC::IncomingGrenade(void)
 {
+#ifdef NEO
+	Assert(false); // we don't do CBaseGrenade
+#else
+
 	int				iDist;
 
 	AIEnemiesIter_t iter;
@@ -2250,6 +2266,7 @@ CBaseGrenade* CAI_BaseNPC::IncomingGrenade(void)
 		if (flDotPr > 0.85)
 			return pBG;
 	}
+#endif
 	return NULL;
 }
 
@@ -8307,7 +8324,15 @@ void CAI_BaseNPC::HandleAnimEvent( animevent_t *pEvent )
 				break;
 			}
 
+#ifdef NEO
+			CBaseCombatWeapon* pWeapon;
+			if (pPickup->IsBaseCombatWeapon())
+				pWeapon = assert_cast<CBaseCombatWeapon*>(pPickup);
+			else
+				pWeapon = nullptr;
+#else
 			CBaseCombatWeapon *pWeapon = dynamic_cast<CBaseCombatWeapon *>( pPickup );
+#endif
 			if ( pWeapon )
 			{
 				// Picking up a weapon.
@@ -9772,7 +9797,11 @@ Vector CAI_BaseNPC::GetActualShootTrajectory( const Vector &shootOrigin )
 	bool bUsePerfectAccuracy = false;
 	if ( GetEnemy() && GetEnemy()->Classify() == CLASS_BULLSEYE )
 	{
+#ifdef NEO
+		CNPC_Bullseye *pBullseye = assert_cast<CNPC_Bullseye*>(GetEnemy());
+#else
 		CNPC_Bullseye *pBullseye = dynamic_cast<CNPC_Bullseye*>(GetEnemy()); 
+#endif
 		if ( pBullseye && pBullseye->UsePerfectAccuracy() )
 		{
 			bUsePerfectAccuracy = true;

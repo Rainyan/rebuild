@@ -134,6 +134,24 @@ public:
 		if ( !pEntity )
 			return true;
 
+#ifdef NEO
+		switch (pEntity->GetCollisionGroup())
+		{
+		case COLLISION_GROUP_DEBRIS:
+		case COLLISION_GROUP_INTERACTIVE_DEBRIS:
+			return false;
+		default:
+			break;
+		}
+
+		if (pEntity->IsPlayer())
+			return false;
+		else
+			Assert(dynamic_cast<C_BasePlayer*>(pEntity) == nullptr);
+
+		if (dynamic_cast<C_BaseViewModel*>(pEntity) != nullptr)
+			return false;
+#else
 		if ( ( dynamic_cast<C_BaseViewModel *>( pEntity ) != NULL ) ||
 			 ( dynamic_cast<C_BasePlayer *>( pEntity ) != NULL ) ||
 			 pEntity->GetCollisionGroup() == COLLISION_GROUP_DEBRIS ||
@@ -141,6 +159,7 @@ public:
 		{
 			return false;
 		}
+#endif
 
 		return true;
 	}

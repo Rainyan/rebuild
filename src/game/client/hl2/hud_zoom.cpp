@@ -119,7 +119,11 @@ bool CHudZoom::ShouldDraw( void )
 {
 	bool bNeedsDraw = false;
 
+#ifdef NEO
+	C_BaseHLPlayer *pPlayer = assert_cast<C_BaseHLPlayer *>(C_BasePlayer::GetLocalPlayer());
+#else
 	C_BaseHLPlayer *pPlayer = dynamic_cast<C_BaseHLPlayer *>(C_BasePlayer::GetLocalPlayer());
+#endif
 	if ( pPlayer == NULL )
 		return false;
 
@@ -146,7 +150,11 @@ void CHudZoom::Paint( void )
 	m_bPainted = false;
 
 	// see if we're zoomed any
+#ifdef NEO
+	C_BaseHLPlayer *pPlayer = assert_cast<C_BaseHLPlayer *>(C_BasePlayer::GetLocalPlayer());
+#else
 	C_BaseHLPlayer *pPlayer = dynamic_cast<C_BaseHLPlayer *>(C_BasePlayer::GetLocalPlayer());
+#endif
 	if ( pPlayer == NULL )
 		return;
 

@@ -1450,7 +1450,11 @@ void ClientModeShared::FireGameEvent( IGameEvent *event )
 
 		if ( !IsInCommentaryMode() )
 		{
+#ifdef NEO
+			CAchievementMgr *pAchievementMgr = assert_cast<CAchievementMgr *>( engine->GetAchievementMgr() );
+#else
 			CAchievementMgr *pAchievementMgr = dynamic_cast<CAchievementMgr *>( engine->GetAchievementMgr() );
+#endif
 			if ( !pAchievementMgr )
 				return;
 

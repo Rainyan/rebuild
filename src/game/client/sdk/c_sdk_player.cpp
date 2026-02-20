@@ -180,6 +180,10 @@ void C_SDKRagdoll::ImpactTrace( trace_t *pTrace, int iDamageType, const char *pC
 
 void C_SDKRagdoll::CreateRagdoll()
 {
+#ifdef NEO
+	Assert(false); // called wrong func?
+#endif
+
 	// First, initialize all our data. If we have the player's entity on our client,
 	// then we can make ourselves start out exactly where the player is.
 	C_SDKPlayer *pPlayer = dynamic_cast< C_SDKPlayer* >( m_hPlayer.Get() );

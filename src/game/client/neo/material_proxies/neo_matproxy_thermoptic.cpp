@@ -64,8 +64,20 @@ void CNEOTocMaterialProxy::OnBind(void *pC_BaseEntity)
 	auto renderable = static_cast<IClientRenderable*>(pC_BaseEntity);
 	Assert(renderable);
 
+	C_NEO_Player* pNeoPlayer = nullptr;
+	C_BaseHL2MPCombatWeapon* pWep = nullptr;
+	if (auto* unknown = renderable->GetIClientUnknown())
+	{
+		if (auto* baseEnt = unknown->GetBaseEntity())
+		{
+			if (baseEnt->IsPlayer())
+				pNeoPlayer = assert_cast<decltype(pNeoPlayer)>(baseEnt);
+			else if (baseEnt->IsBaseCombatWeapon())
+				pWep = assert_cast<decltype(pWep)>(baseEnt);
+		}
+	}
+
 	// This entity is a valid C_NEO_Player?
-	auto pNeoPlayer = dynamic_cast<C_NEO_Player*>(renderable);
 	if (pNeoPlayer)
 	{
 		m_pResultVar->SetIntValue(pNeoPlayer->IsCloaked() ? 1 : 0);
@@ -74,19 +86,8 @@ void CNEOTocMaterialProxy::OnBind(void *pC_BaseEntity)
 		return;
 	}
 
-	// This entity is a viewmodel?
-	auto pVM = dynamic_cast<C_NEOPredictedViewModel*>(renderable);
-	if (pVM)
-	{
-		auto pOwner = static_cast<C_NEO_Player*>(pVM->GetOwner());
-		Assert(pOwner);
-		m_pResultVar->SetIntValue(pOwner->IsCloaked() ? 1 : 0);
-		return;
-	}
-
 	// This entity is a weapon?
-	auto pWep = dynamic_cast<C_BaseHL2MPCombatWeapon*>(renderable);
-	if (pWep)
+	else if (pWep)
 	{
 		auto pOwner = static_cast<C_NEO_Player*>(pWep->GetOwner());
 		if (pOwner)
@@ -100,9 +101,21 @@ void CNEOTocMaterialProxy::OnBind(void *pC_BaseEntity)
 		return;
 	}
 
-	// All checks above failed; this is not a player/vm/wep.
-	// Probably a mistake if we reach here. If not, add your use case above.
-	Assert(false);
+	// This entity is a viewmodel?
+	else if (auto pVM = dynamic_cast<C_NEOPredictedViewModel*>(renderable))
+	{
+		auto pOwner = static_cast<C_NEO_Player*>(pVM->GetOwner());
+		Assert(pOwner);
+		m_pResultVar->SetIntValue(pOwner->IsCloaked() ? 1 : 0);
+		return;
+	}
+
+	else
+	{
+		// All checks above failed; this is not a player/vm/wep.
+		// Probably a mistake if we reach here. If not, add your use case above.
+		Assert(false);
+	}
 
 	m_pResultVar->SetIntValue(0);
 }
