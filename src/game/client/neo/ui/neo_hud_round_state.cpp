@@ -614,9 +614,9 @@ void CNEOHud_RoundState::DrawNeoHudElement()
 
 void CNEOHud_RoundState::DrawPlayerList()
 {
-	ConVarRef cl_neo_bot_cmdr_enable_ref("sv_neo_bot_cmdr_enable");
+	static ConVarRef cl_neo_bot_cmdr_enable_ref("sv_neo_bot_cmdr_enable");
 	Assert(cl_neo_bot_cmdr_enable_ref.IsValid());
-	if (cl_neo_bot_cmdr_enable_ref.IsValid() && cl_neo_bot_cmdr_enable_ref.GetBool())
+	if (cl_neo_bot_cmdr_enable_ref.GetBool())
 	{
 		DrawPlayerList_BotCmdr();
 		return;
@@ -833,9 +833,9 @@ void CNEOHud_RoundState::DrawPlayerList_BotCmdr()
 
 int CNEOHud_RoundState::DrawPlayerRow(int playerIndex, const int yOffset, bool small)
 {
-	ConVarRef cl_neo_bot_cmdr_enable_ref("sv_neo_bot_cmdr_enable");
+	static ConVarRef cl_neo_bot_cmdr_enable_ref("sv_neo_bot_cmdr_enable");
 	Assert(cl_neo_bot_cmdr_enable_ref.IsValid());
-	if (cl_neo_bot_cmdr_enable_ref.IsValid() && cl_neo_bot_cmdr_enable_ref.GetBool())
+	if (cl_neo_bot_cmdr_enable_ref.GetBool())
 	{
 		return DrawPlayerRow_BotCmdr(playerIndex, yOffset, small);
 	}
@@ -974,9 +974,9 @@ void CNEOHud_RoundState::DrawPlayer(int playerIndex, int teamIndex, const TeamLo
 		surface()->DrawSetColor(COLOR_DARK);
 	surface()->DrawTexturedRect(xOffset, Y_POS + 1, xOffset + m_ilogoSize, Y_POS + m_ilogoSize + 1);
 
-	ConVarRef cl_neo_bot_cmdr_enable_ref("sv_neo_bot_cmdr_enable");
+	static ConVarRef cl_neo_bot_cmdr_enable_ref("sv_neo_bot_cmdr_enable");
 	Assert(cl_neo_bot_cmdr_enable_ref.IsValid());
-	if (cl_neo_bot_cmdr_enable_ref.IsValid() && cl_neo_bot_cmdr_enable_ref.GetBool())
+	if (cl_neo_bot_cmdr_enable_ref.GetBool())
 	{
 		// Draw Command Highlight Border on top of the avatar image
 		C_NEO_Player* pPlayer = static_cast<C_NEO_Player*>(UTIL_PlayerByIndex(playerIndex));
