@@ -21,6 +21,10 @@
 #define INTERFACEVERSION_GAMEEVENTSMANAGER	"GAMEEVENTSMANAGER001"	// old game event manager, don't use it!
 #define INTERFACEVERSION_GAMEEVENTSMANAGER2	"GAMEEVENTSMANAGER002"	// new game event manager,
 
+#if defined(NEO) && defined(DBGFLAG_ASSERT)
+#include "filesystem.h"
+#endif
+
 #include "tier1/bitbuf.h"
 //-----------------------------------------------------------------------------
 // Purpose: Engine interface into global game event management
@@ -163,6 +167,167 @@ public:
 	virtual bool SerializeEvent( IGameEvent *event, bf_write *buf ) = 0;
 	virtual IGameEvent *UnserializeEvent( bf_read *buf ) = 0; // create new KeyValues, must be deleted
 };
+
+#if defined(NEO) && defined(DBGFLAG_ASSERT)
+// Debug shim for IGameEventManager2 with extra asserts
+class CDebugGameEventManager : public IGameEventManager2
+{
+	IGameEventManager2* m_impl;
+	CUtlVector<IGameEventListener2*> m_listeners;
+	class : public IGameEventListener2 {
+		virtual void FireGameEvent(IGameEvent*) override final {}
+	} m_dummyListener;
+
+public:
+	CDebugGameEventManager(IGameEventManager2* impl)
+		: m_impl(impl)
+	{
+		Assert(impl);
+	}
+
+	virtual ~CDebugGameEventManager() override final
+	{
+		delete m_impl;
+	}
+
+	// load game event descriptions from a file eg "resource\gameevents.res"
+	virtual int LoadEventsFromFile(const char* filename) override final
+	{
+		auto ret = m_impl->LoadEventsFromFile(filename);
+		Assert(ret > 0);
+		return ret;
+	}
+
+	// removes all and anything
+	virtual void  Reset() override final
+	{
+		return m_impl->Reset();
+	}
+
+	// adds a listener for a particular event
+	virtual bool AddListener(IGameEventListener2* listener,
+		const char* name, bool bServerSide) override final
+	{
+		Assert(listener);
+		auto ok = m_impl->AddListener(listener, name, bServerSide);
+		// "ok" not asserted because not necessarily an error
+		if (ok) m_listeners.AddToTail(listener);
+		return ok;
+	}
+
+	// returns true if this listener listens to given event
+	virtual bool FindListener(IGameEventListener2* listener,
+		const char* name) override final
+	{
+		return m_impl->FindListener(listener, name);
+	}
+
+	// removes a listener
+	virtual void RemoveListener(IGameEventListener2* listener)
+		override final
+	{
+		Assert(m_listeners.FindAndRemove(listener));
+		return m_impl->RemoveListener(listener);
+	}
+
+	// create an event by name, but doesn't fire it. returns NULL is event is not
+	// known or no listener is registered for it. bForce forces the creation even if no listener is active
+	virtual IGameEvent* CreateEvent(const char* name,
+		bool bForce = false) override final
+	{
+		constexpr const char* modEventsFile = "resource/NeoModEvents.res";
+		Assert(filesystem);
+		Assert(filesystem->FileExists(modEventsFile));
+
+		if (auto* event = m_impl->CreateEvent(name, bForce))
+		{
+			return event;
+		}
+
+		constexpr bool isServer =
+#ifdef GAME_DLL
+			true
+#else
+			false
+#endif
+			;
+
+		// If we failed to create the event despite bForce,
+		// or if adding a listener for !bForce case failed,
+		// then most likely this is not a known event.
+		if (bForce ||
+			!AddListener(
+				&m_dummyListener, name, isServer))
+		{
+			AssertMsg2(false, "Event \"%s\" unknown; check %s", name, modEventsFile);
+			return nullptr;
+		}
+		// Sanity check, just called AddListener so this shouldn't fail
+		Assert(FindListener(&m_dummyListener, name));
+
+		// Try to create the event again with the dummy listener in place
+		const bool retryOk = (nullptr != m_impl->CreateEvent(name, bForce));
+
+		// Undo the dummy listener add because we added it only to
+		// observe the AddListener/FindListener/CreateEvent retvals.
+		RemoveListener(&m_dummyListener);
+
+		Assert(retryOk); // this assertion should never fail
+
+		// There was no listener originally registered and also
+		// bForce == false, so this is not an error.
+		return nullptr;
+	}
+
+	// fires a server event created earlier, if bDontBroadcast is set, event is not send to clients
+	virtual bool FireEvent(IGameEvent* event,
+		bool bDontBroadcast = false) override final
+	{
+		auto ret = m_impl->FireEvent(event, bDontBroadcast);
+		Assert(ret);
+		return ret;
+	}
+
+	// fires an event for the local client only, should be used only by client code
+	virtual bool FireEventClientSide(IGameEvent* event) override final
+	{
+		auto ret = m_impl->FireEventClientSide(event);
+		Assert(ret);
+		return ret;
+	}
+
+	// create a new copy of this event, must be freed later
+	virtual IGameEvent* DuplicateEvent(IGameEvent* event) override final
+	{
+		auto* ret = m_impl->DuplicateEvent(event);
+		Assert(ret);
+		return ret;
+	}
+
+	// if an event was created but not fired for some reason, it has to bee freed, same UnserializeEvent
+	virtual void FreeEvent(IGameEvent* event) override final
+	{
+		return m_impl->FreeEvent(event);
+	}
+
+	// write/read event to/from bitbuffer
+	virtual bool SerializeEvent(IGameEvent* event, bf_write* buf)
+		override final
+	{
+		auto res = m_impl->SerializeEvent(event, buf);
+		Assert(res);
+		return res;
+	}
+
+	// create new KeyValues, must be deleted
+	virtual IGameEvent *UnserializeEvent( bf_read *buf ) override final
+	{
+		auto* res = m_impl->UnserializeEvent(buf);
+		Assert(res);
+		return res;
+	}
+};
+#endif
 
 // the old game event manager interface, don't use it. Rest is legacy support:
 
