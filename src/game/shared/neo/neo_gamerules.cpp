@@ -4408,13 +4408,8 @@ void CNEORules::ClientDisconnected(edict_t* pClient)
 		auto ghost = GetNeoWepWithBits(pNeoPlayer, NEO_WEP_GHOST);
 		if (ghost)
 		{
-			// NEO JANK (nullsystem): Teleport so that disconnected player don't noclips the ghost?
-			Vector stillVec{0.0f, 0.0f, 0.0f};
-			ghost->Drop(stillVec);
+			ghost->Drop(vec3_origin);
 			pNeoPlayer->Weapon_Detach(ghost);
-			Vector origin = ghost->GetAbsOrigin();
-			ghost->Teleport(&origin, nullptr, NULL);
-			ghost->SetMoveType(MOVETYPE_FLYGRAVITY);
 		}
 		pNeoPlayer->RemoveAllWeapons();
 
