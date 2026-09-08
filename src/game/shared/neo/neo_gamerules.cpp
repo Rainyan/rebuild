@@ -4410,11 +4410,10 @@ void CNEORules::ClientDisconnected(edict_t* pClient)
 		{
 			// NEO JANK (nullsystem): Teleport so that disconnected player don't noclips the ghost?
 			Vector stillVec{0.0f, 0.0f, 0.0f};
-			QAngle angles;
 			ghost->Drop(stillVec);
 			pNeoPlayer->Weapon_Detach(ghost);
 			Vector origin = ghost->GetAbsOrigin();
-			ghost->Teleport(&origin, &angles, NULL);
+			ghost->Teleport(&origin, nullptr, NULL);
 			ghost->SetMoveType(MOVETYPE_FLYGRAVITY);
 		}
 		pNeoPlayer->RemoveAllWeapons();
