@@ -726,7 +726,7 @@ float CViewRender::GetZFar()
 #ifdef NEO
 // The max pan scale value is arbitrary, chosen to prevent turning so much to see unmapped areas of the 3D background.
 ConVar cl_neo_background_pan("cl_neo_background_pan", "1", FCVAR_ARCHIVE,
-	"Scale by which to pan the camera with the cursor in the main menu background maps", true, 0, true, 10);
+	"Scale by which to pan the camera with the cursor in the main menu background maps", true, -10, true, 10);
 ConVar cl_neo_background_lerp("cl_neo_background_lerp", "1", FCVAR_ARCHIVE,
 	"Scale by which to lerp the camera pan, or 0 to use frametime.", true, 0, true, 1);
 #endif // NEO
