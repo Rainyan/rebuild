@@ -1483,6 +1483,7 @@ float C_NEO_Player::CloakPower_CurrentVisualPercentage(void) const
 void C_NEO_Player::Spawn( void )
 {
 	BaseClass::Spawn();
+	FixupOnGroundFlag();
 
 	m_bLastTickInThermOpticCamo = m_bInThermOpticCamo = false;
 	m_flCamoAuxLastTime = 0;

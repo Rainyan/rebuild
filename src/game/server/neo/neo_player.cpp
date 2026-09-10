@@ -716,6 +716,7 @@ void CNEO_Player::Spawn(void)
 	}
 
 	BaseClass::Spawn();
+	FixupOnGroundFlag();
 
 	SetMaxHealth(MAX_HEALTH_FOR_CLASS[m_iNeoClass]);
 	SetHealth(GetMaxHealth());

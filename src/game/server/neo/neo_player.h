@@ -266,6 +266,7 @@ private:
 	void CheckLeanButtons();
 	void PlayCloakSound(bool removeLocalPlayer = true);
 	void SetCloakState(bool state);
+	void FixupOnGroundFlag();
 
 public:
 	CNetworkVar(int, m_iNeoClass);

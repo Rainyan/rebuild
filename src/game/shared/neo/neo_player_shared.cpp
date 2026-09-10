@@ -903,21 +903,9 @@ bool CNEO_Player::IsAllowedToSuperJump()
 	if (IsAirborne())
 		return false;
 
-	if (GetFlags() & FL_INWATER)
-	{
-		if (GetWaterLevel() >= WL_Waist) // the cheap case
-			return false;
-
-		const Vector& start = GetAbsOrigin();
-		Vector end(start.x, start.y, start.z - 64);
-		Ray_t ray;
-		ray.Init(start, end, GetPlayerMins(), GetPlayerMaxs());
-		trace_t	trace;
-		UTIL_TraceRay(ray, MASK_PLAYERSOLID, this, COLLISION_GROUP_PLAYER_MOVEMENT, &trace);
-		const bool foundGround = trace.DidHit();
-		if (!foundGround)
-			return false;
-	}
+	constexpr auto parityHighestAllowedWaterLevel = WL_Feet;
+	if (GetWaterLevel() > parityHighestAllowedWaterLevel)
+		return false;
 
 	// Only superjump if we have a reasonable jump direction in mind
 	// NEO TODO (Rain): should we support sideways superjumping?
@@ -930,4 +918,26 @@ bool CNEO_Player::IsAllowedToSuperJump()
 		return false;
 
 	return true;
+}
+
+// BaseClass::Spawn sets FL_ONGROUND for us, which is convenient but not guaranteed correct,
+// for example if spawning in/above a body of water. This matters especially for the recon
+// superjump validity check. So let's check if we've actually got a ground or not.
+// Another case that goes out of whack without this fixup is being able to superjump mid-air
+// when spawning into a warmup/non-freezetime'd match, before hitting the floor for the first time.
+void CNEO_Player::FixupOnGroundFlag()
+{
+	// Assert that the client side baseclass doesn't do this (and therefore we need do nothing for it)
+	Assert((GetFlags() & FL_ONGROUND) == IsServer());
+#ifdef GAME_DLL
+	const Vector& start = GetAbsOrigin();
+	Vector end(start.x, start.y, start.z - 64);
+	Ray_t ray;
+	ray.Init(start, end, GetPlayerMins(), GetPlayerMaxs());
+	trace_t	trace;
+	UTIL_TraceRay(ray, MASK_PLAYERSOLID, this, COLLISION_GROUP_PLAYER_MOVEMENT, &trace);
+	const bool foundGround = trace.DidHit();
+	if (!foundGround)
+		RemoveFlag(FL_ONGROUND); // not actually on ground, remove it!
+#endif
 }

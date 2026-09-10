@@ -205,6 +205,7 @@ private:
 	void CheckLeanButtons();
 	void PlayCloakSound();
 	void SetCloakState(bool state);
+	void FixupOnGroundFlag();
 
 	bool IsAllowedToSuperJump(void);
 
