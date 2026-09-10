@@ -900,11 +900,24 @@ bool CNEO_Player::IsAllowedToSuperJump()
 	if (GetMoveParent())
 		return false;
 
-	if (GetWaterLevel() >= WL_Waist)
-		return false;
-
 	if (IsAirborne())
 		return false;
+
+	if (GetFlags() & FL_INWATER)
+	{
+		if (GetWaterLevel() >= WL_Waist) // the cheap case
+			return false;
+
+		const Vector& start = GetAbsOrigin();
+		Vector end(start.x, start.y, start.z - 64);
+		Ray_t ray;
+		ray.Init(start, end, GetPlayerMins(), GetPlayerMaxs());
+		trace_t	trace;
+		UTIL_TraceRay(ray, MASK_PLAYERSOLID, this, COLLISION_GROUP_PLAYER_MOVEMENT, &trace);
+		const bool foundGround = trace.DidHit();
+		if (!foundGround)
+			return false;
+	}
 
 	// Only superjump if we have a reasonable jump direction in mind
 	// NEO TODO (Rain): should we support sideways superjumping?
