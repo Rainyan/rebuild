@@ -727,6 +727,8 @@ float CViewRender::GetZFar()
 // The max pan scale value is arbitrary, chosen to prevent turning so much to see unmapped areas of the 3D background.
 ConVar cl_neo_background_pan("cl_neo_background_pan", "1", FCVAR_ARCHIVE,
 	"Scale by which to pan the camera with the cursor in the main menu background maps", true, 0, true, 10);
+ConVar cl_neo_background_lerp("cl_neo_background_lerp", "1", FCVAR_ARCHIVE,
+	"Scale by which to lerp the camera pan, or 0 to use frametime.", true, 0, true, 1);
 #endif // NEO
 //-----------------------------------------------------------------------------
 // Sets up the view parameters
@@ -804,8 +806,18 @@ void CViewRender::SetUpViews()
 				flX *= CAMERA_MOVEMENT_MULTIPIER;
 				flY *= CAMERA_MOVEMENT_MULTIPIER;
 
-				viewEye.angles.y += flX;
-				viewEye.angles.x -= flY;
+				static Vector2D lerpedOffs(0, 0);
+				viewEye.angles.x -= lerpedOffs.y;
+				viewEye.angles.y += lerpedOffs.x;
+
+				float lerpScale = cl_neo_background_lerp.GetFloat();
+				if (!lerpScale)
+					lerpScale = Min(gpGlobals->frametime, 1.f);
+				Assert(IN_BETWEEN_EQ(0, lerpScale, 1));
+				// if lerpScale==1, then this is just an unlerped assignment
+				lerpedOffs.x = Lerp(lerpScale, lerpedOffs.x, flX);
+				lerpedOffs.y = Lerp(lerpScale, lerpedOffs.y, flY);
+				Assert(lerpedOffs.IsValid());
 			}
 		}
 		else
