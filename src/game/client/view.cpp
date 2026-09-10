@@ -780,7 +780,7 @@ void CViewRender::SetUpViews()
 	}
 #endif
 #if defined NEO
-	// float compare because background pan can be scalar
+	// float compare because background pan can be scalar, and .GetBool() casts via int which would round down for values 0-1
 	else if (engine->IsLevelMainMenuBackground() && cl_neo_background_pan.GetFloat() != 0)
 	{
 		if (pPlayer)
