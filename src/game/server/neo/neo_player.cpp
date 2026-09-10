@@ -1625,40 +1625,6 @@ void CNEO_Player::SuperJump(void)
 	ApplyAbsVelocityImpulse(forward * boostIntensity);
 }
 
-bool CNEO_Player::IsAllowedToSuperJump(void)
-{
-	// NEOJANK: Bots are exempt from certain checks due to their their erratic input control
-	if (!IsBot())
-	{
-		if (!IsSprinting())
-			return false;
-	}
-
-	if (IsCarryingGhost())
-		return false;
-
-	if (GetMoveParent())
-		return false;
-
-	if (GetWaterLevel() >= WL_Waist)
-		return false;
-
-	if (IsAirborne())
-		return false;
-
-	// Only superjump if we have a reasonable jump direction in mind
-	// NEO TODO (Rain): should we support sideways superjumping?
-	if ((m_nButtons & (IN_FORWARD | IN_BACK | IN_MOVELEFT | IN_MOVERIGHT)) == 0)
-	{
-		return false;
-	}
-
-	if (SuitPower_GetCurrentPercentage() < SUPER_JMP_COST)
-		return false;
-
-	return true;
-}
-
 void CNEO_Player::PostThink(void)
 {
 	BaseClass::PostThink();

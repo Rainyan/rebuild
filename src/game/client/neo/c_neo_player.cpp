@@ -1440,37 +1440,6 @@ void C_NEO_Player::UpdateGlowEffects(int iNewTeam)
 }
 #endif // GLOWS_ENABLE
 
-bool C_NEO_Player::IsAllowedToSuperJump(void)
-{
-	if (!IsSprinting())
-		return false;
-
-	if (IsCarryingGhost())
-		return false;
-
-	if (GetMoveParent())
-		return false;
-
-	if (GetWaterLevel() >= WL_Waist)
-		return false;
-
-	if (IsAirborne())
-		return false;
-
-	// Only superjump if we have a reasonable jump direction in mind
-	// NEO TODO (Rain): should we support sideways superjumping?
-	if ((m_nButtons & (IN_FORWARD | IN_BACK | IN_MOVELEFT | IN_MOVERIGHT)) == 0)
-	{
-		return false;
-	}
-
-	// The suit check is for prediction only, actual power drain happens serverside
-	if (m_HL2Local.m_flSuitPower < SUPER_JMP_COST)
-		return false;
-
-	return true;
-}
-
 // This is applied for prediction purposes. It should match CNEO_Player's method.
 void C_NEO_Player::SuperJump(void)
 {
