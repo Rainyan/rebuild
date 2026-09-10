@@ -222,8 +222,6 @@ public:
 	CNetworkVar(int, m_iXP);
 	CNetworkVar(int, m_iLoadoutWepChoice);
 	CNetworkVar(int, m_iNextSpawnClassChoice);
-	
-	CNetworkVar(bool, m_bHasBeenAirborneForTooLongToSuperJump);
 
 	CNetworkVar(float, m_flCamoAuxLastTime);
 	CNetworkVar(float, m_flVisionLastTime);
@@ -263,9 +261,6 @@ private:
 	bool m_bFirstDeathTick;
 	bool m_bPreviouslyReloading;
 	bool m_bSpecRefreshedStates;
-
-	float m_flLastAirborneJumpOkTime;
-	float m_flLastSuperJumpTime;
 
 	float m_flTocFactor; // Cloak strength, controls tint, refraction amount. Lower values make player more difficult to spot
 

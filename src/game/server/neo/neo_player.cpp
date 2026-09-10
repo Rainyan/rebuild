@@ -63,7 +63,6 @@ SendPropEHandle(SENDINFO(m_hCommandingPlayer)),
 SendPropBool(SENDINFO(m_bInThermOpticCamo)),
 SendPropBool(SENDINFO(m_bLastTickInThermOpticCamo)),
 SendPropBool(SENDINFO(m_bInVision)),
-SendPropBool(SENDINFO(m_bHasBeenAirborneForTooLongToSuperJump)),
 SendPropBool(SENDINFO(m_bShowTestMessage)),
 SendPropBool(SENDINFO(m_bInAim)),
 SendPropBool(SENDINFO(m_bIneligibleForLoadoutPick)),
@@ -105,7 +104,6 @@ DEFINE_FIELD(m_bInLean, FIELD_INTEGER),
 DEFINE_FIELD(m_bInThermOpticCamo, FIELD_BOOLEAN),
 DEFINE_FIELD(m_bLastTickInThermOpticCamo, FIELD_BOOLEAN),
 DEFINE_FIELD(m_bInVision, FIELD_BOOLEAN),
-DEFINE_FIELD(m_bHasBeenAirborneForTooLongToSuperJump, FIELD_BOOLEAN),
 DEFINE_FIELD(m_bShowTestMessage, FIELD_BOOLEAN),
 DEFINE_FIELD(m_bInAim, FIELD_BOOLEAN),
 
@@ -584,7 +582,6 @@ CNEO_Player::CNEO_Player()
 	V_memset(m_szNeoCrosshair.GetForModify(), 0, sizeof(m_szNeoCrosshair));
 
 	m_bInThermOpticCamo = m_bInVision = false;
-	m_bHasBeenAirborneForTooLongToSuperJump = false;
 	m_bInAim = false;
 	m_bCarryingGhost = false;
 	m_bInLean = NEO_LEAN_NONE;
@@ -597,10 +594,7 @@ CNEO_Player::CNEO_Player()
 
 	m_flCamoAuxLastTime = 0;
 	m_flVisionLastTime = 0;
-	m_flLastAirborneJumpOkTime = 0;
-	m_flLastSuperJumpTime = 0;
 	m_botThermOpticCamoDisruptedTimer.Invalidate();
-
 
 	m_bFirstDeathTick = true;
 	m_bCorpseSet = false;
@@ -1149,37 +1143,6 @@ void CNEO_Player::PreThink(void)
 		Lean();
 	}
 
-	// NEO HACK (Rain): Just bodging together a check for if we're allowed
-	// to superjump, or if we've been airborne too long for that.
-	// Ideally this should get cleaned up and moved to wherever
-	// the regular engine jump does a similar check.
-	bool newNetAirborneVal;
-	if (IsAirborne())
-	{
-		m_flLastAirborneJumpOkTime = gpGlobals->curtime;
-		const float deltaTime = gpGlobals->curtime - m_flLastAirborneJumpOkTime;
-		const float leeway = 0.5f;
-		if (deltaTime > leeway)
-		{
-			newNetAirborneVal = false;
-			m_flLastAirborneJumpOkTime = gpGlobals->curtime;
-		}
-		else
-		{
-			newNetAirborneVal = true;
-		}
-	}
-	else
-	{
-		newNetAirborneVal = false;
-	}
-	// Only send the network update if we actually changed state
-	if (m_bHasBeenAirborneForTooLongToSuperJump != newNetAirborneVal)
-	{
-		m_bHasBeenAirborneForTooLongToSuperJump = newNetAirborneVal;
-		NetworkStateChanged();
-	}
-
 	if (m_iNeoClass == NEO_CLASS_RECON &&
 		(m_afButtonPressed & IN_JUMP) && (m_nButtons & IN_SPEED) &&
 		IsAllowedToSuperJump())
@@ -1677,11 +1640,10 @@ bool CNEO_Player::IsAllowedToSuperJump(void)
 	if (GetMoveParent())
 		return false;
 
-	if (IsPlayerUnderwater())
+	if (GetWaterLevel() >= WL_Waist)
 		return false;
 
-	// Can't superjump whilst airborne (although it is kind of cool)
-	if (m_bHasBeenAirborneForTooLongToSuperJump)
+	if (IsAirborne())
 		return false;
 
 	// Only superjump if we have a reasonable jump direction in mind
@@ -1693,16 +1655,6 @@ bool CNEO_Player::IsAllowedToSuperJump(void)
 
 	if (SuitPower_GetCurrentPercentage() < SUPER_JMP_COST)
 		return false;
-
-	if (SUPER_JMP_DELAY_BETWEEN_JUMPS > 0)
-	{
-		m_flLastSuperJumpTime = gpGlobals->curtime;
-		const float deltaTime = gpGlobals->curtime - m_flLastSuperJumpTime;
-		if (deltaTime > SUPER_JMP_DELAY_BETWEEN_JUMPS)
-			return false;
-
-		m_flLastSuperJumpTime = gpGlobals->curtime;
-	}
 
 	return true;
 }
@@ -4294,14 +4246,11 @@ void CNEO_Player::SpectatorTakeoverPlayerPreThink()
 			m_HL2Local.m_flSuitPower = pPlayerTakeoverTarget->m_HL2Local.m_flSuitPower;
 
 			m_bInThermOpticCamo = pPlayerTakeoverTarget->m_bInThermOpticCamo;
-			m_bHasBeenAirborneForTooLongToSuperJump = pPlayerTakeoverTarget->m_bHasBeenAirborneForTooLongToSuperJump;
 			m_bInAim = pPlayerTakeoverTarget->m_bInAim;
 			Weapon_SetZoom(pPlayerTakeoverTarget->m_bInAim);
 			m_bCarryingGhost = pPlayerTakeoverTarget->m_bCarryingGhost;
 			m_bInLean = pPlayerTakeoverTarget->m_bInLean;
 			m_flCamoAuxLastTime = pPlayerTakeoverTarget->m_flCamoAuxLastTime;
-			m_flLastAirborneJumpOkTime = pPlayerTakeoverTarget->m_flLastAirborneJumpOkTime;
-			m_flLastSuperJumpTime = pPlayerTakeoverTarget->m_flLastSuperJumpTime;
 			m_botThermOpticCamoDisruptedTimer.Invalidate(); // taken over by player
 			m_bFirstDeathTick = pPlayerTakeoverTarget->m_bFirstDeathTick;
 			m_bCorpseSet = pPlayerTakeoverTarget->m_bCorpseSet;
