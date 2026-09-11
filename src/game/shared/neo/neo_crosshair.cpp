@@ -311,19 +311,11 @@ static bool ImportOrExportCrosshair(const ESerialMode eSerialMode, CrosshairInfo
 		return false;
 	}
 
-	int iSerialVersion = 0;
-	for (int i = 0; i < iSeqSize; ++i)
+	if (iSeqSize <= 0)
 	{
-		char c = szMutSeq[i];
-		constexpr char asciiZero = 48;
-		constexpr char asciiNine = asciiZero + 9;
-		bool isDigit = (c >= asciiZero) && (c <= asciiNine);
-		if (!isDigit)
-			break;
-		char digit = c - asciiZero;
-		constexpr char radix = 10;
-		iSerialVersion += pow(radix, iSeqSize - 2 - i) * digit;
+		return false;
 	}
+	int iSerialVersion = V_atoi(szMutSeq);
 
 	if (iSerialVersion <= NEOXHAIR_SERIAL_PREALPHA_V8_2 || iSerialVersion > NEOXHAIR_SERIAL_CURRENT)
 	{
