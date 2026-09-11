@@ -113,10 +113,9 @@ static SerialVariant DeserialVariant(NeoXHairSerial ver,
 	return var;
 }
 
-[[nodiscard]] int SerialInt(NeoXHairSerial ver,
-		const int iVal, const int iCompVal,
+[[nodiscard]] int SerialInt(const int iVal, const int iCompVal,
 		const ECompMode eCompMode, char (&szMutStr)[NEO_XHAIR_SEQMAX], SerialContext *ctx,
-		const int iMin, const int iMax)
+		const int iMin, const int iMax, NeoXHairSerial ver)
 {
 	if (ctx->eSerialMode == SERIALMODE_SERIALIZE)
 	{
@@ -143,9 +142,9 @@ static SerialVariant DeserialVariant(NeoXHairSerial ver,
 	}
 }
 
-[[nodiscard]] bool SerialBool(NeoXHairSerial ver,
-		const bool bVal, const bool bCompVal,
-		const ECompMode eCompMode, char (&szMutStr)[NEO_XHAIR_SEQMAX], SerialContext *ctx)
+[[nodiscard]] bool SerialBool(const bool bVal, const bool bCompVal,
+		const ECompMode eCompMode, char (&szMutStr)[NEO_XHAIR_SEQMAX], SerialContext *ctx,
+		NeoXHairSerial ver)
 {
 	if (ctx->eSerialMode == SERIALMODE_SERIALIZE)
 	{
@@ -171,10 +170,9 @@ static SerialVariant DeserialVariant(NeoXHairSerial ver,
 	}
 }
 
-[[nodiscard]] float SerialFloat(NeoXHairSerial ver,
-		const float flVal, const float flCompVal,
+[[nodiscard]] float SerialFloat(const float flVal, const float flCompVal,
 		const ECompMode eCompMode, char (&szMutStr)[NEO_XHAIR_SEQMAX], SerialContext *ctx,
-		const float flMin, const float flMax)
+		const float flMin, const float flMax, NeoXHairSerial ver)
 {
 	if (ctx->eSerialMode == SERIALMODE_SERIALIZE)
 	{
@@ -201,8 +199,8 @@ static SerialVariant DeserialVariant(NeoXHairSerial ver,
 	}
 }
 
-void SerialRLEncode(NeoXHairSerial ver,
-	char (&szMutSeq)[NEO_XHAIR_SEQMAX], const ESerialMode eSerialMode)
+void SerialRLEncode(char (&szMutSeq)[NEO_XHAIR_SEQMAX], const ESerialMode eSerialMode,
+	NeoXHairSerial ver)
 {
 	const char CH_XH_SEGEND = SegEnd(ver);
 

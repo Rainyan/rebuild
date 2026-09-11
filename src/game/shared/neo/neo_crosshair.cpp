@@ -305,13 +305,20 @@ static bool ImportOrExportCrosshair(const ESerialMode eSerialMode, CrosshairInfo
 	if (g_verbose > 0) fprintf(stderr, "%s: ImportOrExportCrosshair: iSeqSize: %d\n", g_testFnName, iSeqSize);
 #endif
 
-	const int iSerialVersion = SerialInt(iExportSerialVersion, NEOXHAIR_SERIAL_CURRENT,
-			COMPMODE_IGNORE, szMutSeq, &ctx);
+	if (iExportSerialVersion <= NEOXHAIR_SERIAL_PREALPHA_V8_2 || iExportSerialVersion > NEOXHAIR_SERIAL_CURRENT)
+	{
+		Assert(false);
+		return false;
+	}
+
+	int iSerialVersion = SerialInt(iExportSerialVersion, NEOXHAIR_SERIAL_CURRENT,
+		COMPMODE_IGNORE, szMutSeq, &ctx, 0, 0, static_cast<NeoXHairSerial>(iExportSerialVersion));
 	if (iSerialVersion <= NEOXHAIR_SERIAL_PREALPHA_V8_2 || iSerialVersion > NEOXHAIR_SERIAL_CURRENT)
 	{
 		// Unsupported serialization version or corrupted from first character
 		return false;
 	}
+	const auto eSerialVer = static_cast<NeoXHairSerial>(iSerialVersion);
 
 	// v28 onwards cuts out segments if unused
 	const bool bNotCompact = (iSerialVersion < NEOXHAIR_SERIAL_ALPHA_V28);
@@ -319,9 +326,9 @@ static bool ImportOrExportCrosshair(const ESerialMode eSerialMode, CrosshairInfo
 	if (iSerialVersion >= NEOXHAIR_SERIAL_ALPHA_V29)
 	{
 		xhairInfo->wepFlags = SerialInt(xhairInfo->wepFlags, xhairInfo->wepFlags,
-				COMPMODE_IGNORE, szMutSeq, &ctx, 0, CROSSHAIR_WEP_FLAG__HIGHESTFLAG);
+				COMPMODE_IGNORE, szMutSeq, &ctx, 0, CROSSHAIR_WEP_FLAG__HIGHESTFLAG, eSerialVer);
 		xhairInfo->hipfireFlags = SerialInt(xhairInfo->hipfireFlags, xhairInfo->hipfireFlags,
-				COMPMODE_IGNORE, szMutSeq, &ctx, 0, CROSSHAIR_HIPFIRECUSTOM_FLAG__HIGHESTFLAG);
+				COMPMODE_IGNORE, szMutSeq, &ctx, 0, CROSSHAIR_HIPFIRECUSTOM_FLAG__HIGHESTFLAG, eSerialVer);
 	}
 
 	if (iSerialVersion >= NEOXHAIR_SERIAL_ALPHA_V35)
@@ -354,38 +361,38 @@ static bool ImportOrExportCrosshair(const ESerialMode eSerialMode, CrosshairInfo
 
 		if (iSerialVersion >= NEOXHAIR_SERIAL_ALPHA_V29)
 		{
-			crh->flags = SerialInt(crh->flags, cmpCrh->flags, eCompMode, szMutSeq, &ctx, 0, CROSSHAIR_FLAG__HIGHESTFLAG);
+			crh->flags = SerialInt(crh->flags, cmpCrh->flags, eCompMode, szMutSeq, &ctx, 0, CROSSHAIR_FLAG__HIGHESTFLAG, eSerialVer);
 		}
-		crh->iStyle = SerialInt(crh->iStyle, cmpCrh->iStyle, eCompMode, szMutSeq, &ctx, 0, CROSSHAIR_STYLE__TOTAL - 1);
-		crh->color.SetRawColor(SerialInt(crh->color.GetRawColor(), cmpCrh->color.GetRawColor(), eCompMode, szMutSeq, &ctx));
+		crh->iStyle = SerialInt(crh->iStyle, cmpCrh->iStyle, eCompMode, szMutSeq, &ctx, 0, CROSSHAIR_STYLE__TOTAL - 1, eSerialVer);
+		crh->color.SetRawColor(SerialInt(crh->color.GetRawColor(), cmpCrh->color.GetRawColor(), eCompMode, szMutSeq, &ctx, 0, 0, eSerialVer));
 
 		if (bNotCompact || crh->iStyle == CROSSHAIR_STYLE_CUSTOM)
 		{
-			crh->eSizeType = static_cast<NeoHudCrosshairSizeType>(SerialInt(crh->eSizeType, cmpCrh->eSizeType, eCompMode, szMutSeq, &ctx, 0, CROSSHAIR_SIZETYPE__TOTAL - 1));
+			crh->eSizeType = static_cast<NeoHudCrosshairSizeType>(SerialInt(crh->eSizeType, cmpCrh->eSizeType, eCompMode, szMutSeq, &ctx, 0, CROSSHAIR_SIZETYPE__TOTAL - 1, eSerialVer));
 			if (bNotCompact || crh->eSizeType == CROSSHAIR_SIZETYPE_ABSOLUTE)
 			{
-				crh->iSize = SerialInt(crh->iSize, cmpCrh->iSize, eCompMode, szMutSeq, &ctx, 0, CROSSHAIR_MAX_SIZE);
+				crh->iSize = SerialInt(crh->iSize, cmpCrh->iSize, eCompMode, szMutSeq, &ctx, 0, CROSSHAIR_MAX_SIZE, eSerialVer);
 			}
 			if (bNotCompact || crh->eSizeType == CROSSHAIR_SIZETYPE_SCREEN)
 			{
-				crh->flScrSize = SerialFloat(crh->flScrSize, cmpCrh->flScrSize, eCompMode, szMutSeq, &ctx, 0.0f, 1.0f);
+				crh->flScrSize = SerialFloat(crh->flScrSize, cmpCrh->flScrSize, eCompMode, szMutSeq, &ctx, 0.0f, 1.0f, eSerialVer);
 			}
-			crh->iThick = SerialInt(crh->iThick, cmpCrh->iThick, eCompMode, szMutSeq, &ctx, 0, CROSSHAIR_MAX_THICKNESS);
-			crh->iGap = SerialInt(crh->iGap, cmpCrh->iGap, eCompMode, szMutSeq, &ctx, 0, CROSSHAIR_MAX_GAP);
-			crh->iOutline = SerialInt(crh->iOutline, cmpCrh->iOutline, eCompMode, szMutSeq, &ctx, 0, CROSSHAIR_MAX_OUTLINE);
-			crh->iCenterDot = SerialInt(crh->iCenterDot, cmpCrh->iCenterDot, eCompMode, szMutSeq, &ctx, 0, CROSSHAIR_MAX_CENTER_DOT);
+			crh->iThick = SerialInt(crh->iThick, cmpCrh->iThick, eCompMode, szMutSeq, &ctx, 0, CROSSHAIR_MAX_THICKNESS, eSerialVer);
+			crh->iGap = SerialInt(crh->iGap, cmpCrh->iGap, eCompMode, szMutSeq, &ctx, 0, CROSSHAIR_MAX_GAP, eSerialVer);
+			crh->iOutline = SerialInt(crh->iOutline, cmpCrh->iOutline, eCompMode, szMutSeq, &ctx, 0, CROSSHAIR_MAX_OUTLINE, eSerialVer);
+			crh->iCenterDot = SerialInt(crh->iCenterDot, cmpCrh->iCenterDot, eCompMode, szMutSeq, &ctx, 0, CROSSHAIR_MAX_CENTER_DOT, eSerialVer);
 			if (iSerialVersion < NEOXHAIR_SERIAL_ALPHA_V29)
 			{
-				const bool bTopLine = SerialBool(!(crh->flags & CROSSHAIR_FLAG_NOTOPLINE), !(cmpCrh->flags & CROSSHAIR_FLAG_NOTOPLINE), eCompMode, szMutSeq, &ctx);
+				const bool bTopLine = SerialBool(!(crh->flags & CROSSHAIR_FLAG_NOTOPLINE), !(cmpCrh->flags & CROSSHAIR_FLAG_NOTOPLINE), eCompMode, szMutSeq, &ctx, eSerialVer);
 				if (!bTopLine)
 				{
 					crh->flags |= CROSSHAIR_FLAG_NOTOPLINE;
 				}
 			}
-			crh->iCircleRad = SerialInt(crh->iCircleRad, cmpCrh->iCircleRad, eCompMode, szMutSeq, &ctx, 0, CROSSHAIR_MAX_CIRCLE_RAD);
+			crh->iCircleRad = SerialInt(crh->iCircleRad, cmpCrh->iCircleRad, eCompMode, szMutSeq, &ctx, 0, CROSSHAIR_MAX_CIRCLE_RAD, eSerialVer);
 			if (bNotCompact || crh->iCircleRad > 0)
 			{
-				crh->iCircleSegments = SerialInt(crh->iCircleSegments, cmpCrh->iCircleSegments, eCompMode, szMutSeq, &ctx, 0, CROSSHAIR_MAX_CIRCLE_SEGMENTS);
+				crh->iCircleSegments = SerialInt(crh->iCircleSegments, cmpCrh->iCircleSegments, eCompMode, szMutSeq, &ctx, 0, CROSSHAIR_MAX_CIRCLE_SEGMENTS, eSerialVer);
 			}
 			
 			if (iSerialVersion < NEOXHAIR_SERIAL_ALPHA_V19)
@@ -395,7 +402,7 @@ static bool ImportOrExportCrosshair(const ESerialMode eSerialMode, CrosshairInfo
 			// >= NEOXHAIR_SERIAL_ALPHA_V19 segments
 
 			crh->eDynamicType = (iSerialVersion >= NEOXHAIR_SERIAL_ALPHA_V19)
-					? static_cast<NeoHudCrosshairDynamicType>(SerialInt(crh->eDynamicType, cmpCrh->eDynamicType, eCompMode, szMutSeq, &ctx, 0, CROSSHAIR_DYNAMICTYPE__TOTAL - 1))
+					? static_cast<NeoHudCrosshairDynamicType>(SerialInt(crh->eDynamicType, cmpCrh->eDynamicType, eCompMode, szMutSeq, &ctx, 0, CROSSHAIR_DYNAMICTYPE__TOTAL - 1, eSerialVer))
 					: CROSSHAIR_DYNAMICTYPE_NONE;
 
 			if (iSerialVersion < NEOXHAIR_SERIAL_ALPHA_V22)
@@ -408,7 +415,7 @@ static bool ImportOrExportCrosshair(const ESerialMode eSerialMode, CrosshairInfo
 			{
 				if (iSerialVersion < NEOXHAIR_SERIAL_ALPHA_V29)
 				{
-					const bool bSeparateColorDot = SerialBool((crh->flags & CROSSHAIR_FLAG_SEPERATEDOTCOLOR), (cmpCrh->flags & CROSSHAIR_FLAG_SEPERATEDOTCOLOR), eCompMode, szMutSeq, &ctx);
+					const bool bSeparateColorDot = SerialBool((crh->flags & CROSSHAIR_FLAG_SEPERATEDOTCOLOR), (cmpCrh->flags & CROSSHAIR_FLAG_SEPERATEDOTCOLOR), eCompMode, szMutSeq, &ctx, eSerialVer);
 					if (bSeparateColorDot)
 					{
 						crh->flags |= CROSSHAIR_FLAG_SEPERATEDOTCOLOR;
@@ -416,16 +423,16 @@ static bool ImportOrExportCrosshair(const ESerialMode eSerialMode, CrosshairInfo
 				}
 				if (bNotCompact || (crh->flags & CROSSHAIR_FLAG_SEPERATEDOTCOLOR))
 				{
-					crh->colorDot.SetRawColor(SerialInt(crh->colorDot.GetRawColor(), cmpCrh->colorDot.GetRawColor(), eCompMode, szMutSeq, &ctx));
+					crh->colorDot.SetRawColor(SerialInt(crh->colorDot.GetRawColor(), cmpCrh->colorDot.GetRawColor(), eCompMode, szMutSeq, &ctx, eSerialVer));
 					if (bNotCompact || crh->iOutline > 0)
 					{
-						crh->colorDotOutline.SetRawColor(SerialInt(crh->colorDotOutline.GetRawColor(), cmpCrh->colorDotOutline.GetRawColor(), eCompMode, szMutSeq, &ctx));
+						crh->colorDotOutline.SetRawColor(SerialInt(crh->colorDotOutline.GetRawColor(), cmpCrh->colorDotOutline.GetRawColor(), eCompMode, szMutSeq, &ctx, eSerialVer));
 					}
 				}
 			}
 			if (bNotCompact || crh->iOutline > 0)
 			{
-				crh->colorOutline.SetRawColor(SerialInt(crh->colorOutline.GetRawColor(), cmpCrh->colorOutline.GetRawColor(), eCompMode, szMutSeq, &ctx));
+				crh->colorOutline.SetRawColor(SerialInt(crh->colorOutline.GetRawColor(), cmpCrh->colorOutline.GetRawColor(), eCompMode, szMutSeq, &ctx, eSerialVer));
 			}
 		}
 	}
@@ -436,7 +443,7 @@ static bool ImportOrExportCrosshair(const ESerialMode eSerialMode, CrosshairInfo
 	}
 
 	// Further compress with RLE
-	SerialRLEncode(szMutSeq, ctx.eSerialMode);
+	SerialRLEncode(szMutSeq, ctx.eSerialMode, eSerialVer);
 	return true;
 }
 
