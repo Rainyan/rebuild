@@ -4,8 +4,16 @@
 
 namespace NeoSerial
 {
-	// The segment-end token was changed from ';' to ',' to avoid clashing with the statement-end token of consolecmds.
-	static constexpr char SEGEND = ',';
+	namespace V1
+	{
+		static constexpr char SEGEND = ';';
+	}
+
+	namespace V7
+	{
+		// The segment-end token was changed from ';' to ',' to avoid clashing with the statement-end token of consolecmds.
+		static constexpr char SEGEND = ',';
+	}
 }
 
 enum ESerialMode
@@ -52,10 +60,10 @@ void SerialRLEncode(char (&szMutSeq)[NEO_XHAIR_SEQMAX], const ESerialMode eSeria
 // And if the char was ';', will print some helpful error for the user to fix their stuff.
 // Returns boolean of whether input "c" was the clashing character or not.
 // Will heap-allocate/free at most seqMax chars in the failure case for printing the message.
-bool NagBadSegEnd(const char* pszSequence, int seqMax);
+bool V7_NagBadSegEnd(const char* pszSequence, int seqMax);
 
 template <int seqMax>
-inline bool NagBadSegEnd(char(&szSequence)[seqMax])
+inline bool V7_NagBadSegEnd(char(&szSequence)[seqMax])
 {
-	return NagBadSegEnd(&szSequence[0], seqMax);
+	return V7_NagBadSegEnd(&szSequence[0], seqMax);
 }

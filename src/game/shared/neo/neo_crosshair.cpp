@@ -305,11 +305,6 @@ static bool ImportOrExportCrosshair(const ESerialMode eSerialMode, CrosshairInfo
 	if (g_verbose > 0) fprintf(stderr, "%s: ImportOrExportCrosshair: iSeqSize: %d\n", g_testFnName, iSeqSize);
 #endif
 
-	if (!NagBadSegEnd(szMutSeq))
-	{
-		return false;
-	}
-
 	const int iSerialVersion = SerialInt(iExportSerialVersion, NEOXHAIR_SERIAL_CURRENT,
 			COMPMODE_IGNORE, szMutSeq, &ctx);
 	if (iSerialVersion <= NEOXHAIR_SERIAL_PREALPHA_V8_2 || iSerialVersion > NEOXHAIR_SERIAL_CURRENT)
@@ -327,6 +322,14 @@ static bool ImportOrExportCrosshair(const ESerialMode eSerialMode, CrosshairInfo
 				COMPMODE_IGNORE, szMutSeq, &ctx, 0, CROSSHAIR_WEP_FLAG__HIGHESTFLAG);
 		xhairInfo->hipfireFlags = SerialInt(xhairInfo->hipfireFlags, xhairInfo->hipfireFlags,
 				COMPMODE_IGNORE, szMutSeq, &ctx, 0, CROSSHAIR_HIPFIRECUSTOM_FLAG__HIGHESTFLAG);
+	}
+
+	if (iSerialVersion >= NEOXHAIR_SERIAL_ALPHA_V35)
+	{
+		if (!V7_NagBadSegEnd(szMutSeq))
+		{
+			return false;
+		}
 	}
 
 	for (int i = 0; i < CROSSHAIR_WEP__TOTAL; ++i)
