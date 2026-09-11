@@ -246,8 +246,11 @@ void SerialRLEncode(char (&szMutSeq)[NEO_XHAIR_SEQMAX], const ESerialMode eSeria
 		{
 			// iPszToRLEPos == 0 never really going to happen for crosshair, but deal
 			// with the edge case anyway
+			char delim[2];
+			delim[0] = CH_XH_SEGEND;
+			delim[1] = '\0';
 			char szTmp[NEO_XHAIR_SEQMAX];
-			V_sprintf_safe(szTmp, "%s%d%c", (iPszToRLEPos == 0) ? ";" : "", iLen, CH_XH_SEGSKIP);
+			V_sprintf_safe(szTmp, "%s%d%c", (iPszToRLEPos == 0) ? delim : "", iLen, CH_XH_SEGSKIP);
 			V_strcat_safe(szFinalSeq, szTmp);
 		}
 		iOffset = iPszToRLEPos + iLen + 1;

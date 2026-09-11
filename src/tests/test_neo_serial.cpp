@@ -480,36 +480,72 @@ void TestDeserialRLE()
 
 void TestSerialRLE()
 {
-	char szMutStr[NEO_XHAIR_SEQMAX] = {};
-	SerialContext ctx = {
-		.eSerialMode = SERIALMODE_SERIALIZE,
-		.iSeqSize = NEO_XHAIR_SEQMAX,
-	};
-	TEST_COMPARE_INT(5, SerialInt(5, 4, COMPMODE_EQUALS, szMutStr, &ctx));
-	TEST_COMPARE_STR(szMutStr, "5;");
-	TEST_COMPARE_INT(2, SerialInt(2, 2, COMPMODE_EQUALS, szMutStr, &ctx));
-	TEST_COMPARE_STR(szMutStr, "5;;");
-	TEST_COMPARE_INT(true, SerialBool(true, true, COMPMODE_EQUALS, szMutStr, &ctx));
-	TEST_COMPARE_STR(szMutStr, "5;;;");
-	TEST_COMPARE_FLT(12.24f, SerialFloat(12.24f, 12.24f, COMPMODE_EQUALS, szMutStr, &ctx), 0.001f);
-	TEST_COMPARE_STR(szMutStr, "5;;;;");
-	TEST_COMPARE_INT(-5, SerialInt(-5, -5, COMPMODE_EQUALS, szMutStr, &ctx));
-	TEST_COMPARE_STR(szMutStr, "5;;;;;");
+	{
+		char szMutStr[NEO_XHAIR_SEQMAX] = {};
+		SerialContext ctx = {
+			.eSerialMode = SERIALMODE_SERIALIZE,
+			.iSeqSize = NEO_XHAIR_SEQMAX,
+		};
+		constexpr auto ver = NEOXHAIR_SERIAL_ALPHA_V29;
+		TEST_COMPARE_INT(5, SerialInt(5, 4, COMPMODE_EQUALS, szMutStr, &ctx, 0, 0, ver));
+		TEST_COMPARE_STR(szMutStr, "5;");
+		TEST_COMPARE_INT(2, SerialInt(2, 2, COMPMODE_EQUALS, szMutStr, &ctx, 0, 0, ver));
+		TEST_COMPARE_STR(szMutStr, "5;;");
+		TEST_COMPARE_INT(true, SerialBool(true, true, COMPMODE_EQUALS, szMutStr, &ctx, ver));
+		TEST_COMPARE_STR(szMutStr, "5;;;");
+		TEST_COMPARE_FLT(12.24f, SerialFloat(12.24f, 12.24f, COMPMODE_EQUALS, szMutStr, &ctx, 0, 0, ver), 0.001f);
+		TEST_COMPARE_STR(szMutStr, "5;;;;");
+		TEST_COMPARE_INT(-5, SerialInt(-5, -5, COMPMODE_EQUALS, szMutStr, &ctx, 0, 0, ver));
+		TEST_COMPARE_STR(szMutStr, "5;;;;;");
 
-	SerialRLEncode(szMutStr, ctx.eSerialMode);
-	TEST_COMPARE_STR(szMutStr, "5;4^");
+		SerialRLEncode(szMutStr, ctx.eSerialMode, ver);
+		TEST_COMPARE_STR(szMutStr, "5;4^");
 
-	V_strcpy_safe(szMutStr, ";;;;;");
-	SerialRLEncode(szMutStr, ctx.eSerialMode);
-	TEST_COMPARE_STR(szMutStr, ";4^");
+		V_strcpy_safe(szMutStr, ";;;;;");
+		SerialRLEncode(szMutStr, ctx.eSerialMode, ver);
+		TEST_COMPARE_STR(szMutStr, ";4^");
 
-	V_strcpy_safe(szMutStr, ";;;;;0;;;;");
-	SerialRLEncode(szMutStr, ctx.eSerialMode);
-	TEST_COMPARE_STR(szMutStr, ";4^0;3^");
+		V_strcpy_safe(szMutStr, ";;;;;0;;;;");
+		SerialRLEncode(szMutStr, ctx.eSerialMode, ver);
+		TEST_COMPARE_STR(szMutStr, ";4^0;3^");
 
-	V_strcpy_safe(szMutStr, ";;;;;0;;;;12;23;;;2;;;;");
-	SerialRLEncode(szMutStr, ctx.eSerialMode);
-	TEST_COMPARE_STR(szMutStr, ";4^0;3^12;23;;;2;3^");
+		V_strcpy_safe(szMutStr, ";;;;;0;;;;12;23;;;2;;;;");
+		SerialRLEncode(szMutStr, ctx.eSerialMode, ver);
+		TEST_COMPARE_STR(szMutStr, ";4^0;3^12;23;;;2;3^");
+	}
+
+	{
+		char szMutStr[NEO_XHAIR_SEQMAX] = {};
+		SerialContext ctx = {
+			.eSerialMode = SERIALMODE_SERIALIZE,
+			.iSeqSize = NEO_XHAIR_SEQMAX,
+		};
+		TEST_COMPARE_INT(5, SerialInt(5, 4, COMPMODE_EQUALS, szMutStr, &ctx));
+		TEST_COMPARE_STR(szMutStr, "5,");
+		TEST_COMPARE_INT(2, SerialInt(2, 2, COMPMODE_EQUALS, szMutStr, &ctx));
+		TEST_COMPARE_STR(szMutStr, "5,,");
+		TEST_COMPARE_INT(true, SerialBool(true, true, COMPMODE_EQUALS, szMutStr, &ctx));
+		TEST_COMPARE_STR(szMutStr, "5,,,");
+		TEST_COMPARE_FLT(12.24f, SerialFloat(12.24f, 12.24f, COMPMODE_EQUALS, szMutStr, &ctx), 0.001f);
+		TEST_COMPARE_STR(szMutStr, "5,,,,");
+		TEST_COMPARE_INT(-5, SerialInt(-5, -5, COMPMODE_EQUALS, szMutStr, &ctx));
+		TEST_COMPARE_STR(szMutStr, "5,,,,,");
+
+		SerialRLEncode(szMutStr, ctx.eSerialMode);
+		TEST_COMPARE_STR(szMutStr, "5,4^");
+
+		V_strcpy_safe(szMutStr, ",,,,,");
+		SerialRLEncode(szMutStr, ctx.eSerialMode);
+		TEST_COMPARE_STR(szMutStr, ",4^");
+
+		V_strcpy_safe(szMutStr, ",,,,,0,,,,");
+		SerialRLEncode(szMutStr, ctx.eSerialMode);
+		TEST_COMPARE_STR(szMutStr, ",4^0,3^");
+
+		V_strcpy_safe(szMutStr, ",,,,,0,,,,12,23,,,2,,,,");
+		SerialRLEncode(szMutStr, ctx.eSerialMode);
+		TEST_COMPARE_STR(szMutStr, ",4^0,3^12,23,,,2,3^");
+	}
 }
 
 TEST_INIT()
