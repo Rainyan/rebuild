@@ -940,7 +940,7 @@ void TestFeature_Flags_OldBool_SepDotColor()
 	static const char SERIAL_TEST_LATEST_STR[] = CURRENT_VER ",0,0,2,2,-1,0,3,2,4,1,6,5,7,1,-16776961,-16711936,-65536,";
 
 	CrosshairInfo xhairInfo = {};
-	const bool bValid = ImportCrosshair(&xhairInfo, SERIAL_TEST_STR);
+	const bool bValid = ImportCrosshair(&xhairInfo, SERIAL_TEST_STR, 0, NEOXHAIR_SERIAL_ALPHA_V22);
 	TEST_COMPARE_INT(bValid, true);
 	TEST_COMPARE_INT(xhairInfo.wepFlags, CROSSHAIR_WEP_FLAG_DEFAULT);
 	TEST_COMPARE_INT(xhairInfo.hipfireFlags, CROSSHAIR_HIPFIRECUSTOM_FLAG_NIL);
@@ -964,7 +964,7 @@ void TestFeature_Flags_OldBool_SepDotColor()
 
 	ExportCrosshair(&xhairInfo, szExportSeq, NEOXHAIR_SERIAL_ALPHA_V22);
 	TEST_COMPARE_STR(szExportSeq, SERIAL_TEST_STR);
-	TEST_COMPARE_INT(true, ValidateCrosshairSerial(szExportSeq));
+	TEST_COMPARE_INT(true, ValidateCrosshairSerial(szExportSeq, NEOXHAIR_SERIAL_ALPHA_V22));
 }
 
 void TestFeature_Flags_OldBool_ToplineOff_SepDotColor()

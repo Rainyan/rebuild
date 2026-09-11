@@ -4,6 +4,8 @@
 #include "Color.h"
 #include "neo_weapon_types.h"
 
+#include <optional>
+
 #ifdef UNIT_TEST_DLL
 #define COLOR_WHITE Color(255, 255, 255, 255)
 #define COLOR_BLACK Color(0, 0, 0, 255)
@@ -205,7 +207,7 @@ bool ValidateCrosshairSerial(const char* pszSequence, NeoXHairSerial ver = NEOXH
 // Only for import as export must have directly already set by flags and managed within UI
 bool ImportCrosshair(CrosshairInfo *xhairInfo, const char *pszSequence,
 		EHipfireOpt (*paeHipfireOpts)[CROSSHAIR_WEP__TOTAL] = nullptr,
-		NeoXHairSerial ver = NEOXHAIR_SERIAL_CURRENT);
+		const std::optional<NeoXHairSerial> ver = std::nullopt);
 
 // iExportSerialVersion is only used for unit testing purpose, for usage in-game
 // it should always be exporting to NEOXHAIR_SERIAL_CURRENT
