@@ -930,6 +930,8 @@ void CNEO_Player::FixupOnGroundFlag()
 	// Assert that the client side baseclass doesn't do this (and therefore we need do nothing for it)
 	Assert((GetFlags() & FL_ONGROUND) == IsServer());
 #ifdef GAME_DLL
+	if (GetTeamNumber() < FIRST_GAME_TEAM) // if it's not a player, don't bother
+		return;
 	const Vector& start = GetAbsOrigin();
 	const Vector& maxs = GetPlayerMaxs();
 	const Vector& mins = GetPlayerMins();
