@@ -316,10 +316,12 @@ static bool ImportOrExportCrosshair(const ESerialMode eSerialMode, CrosshairInfo
 		return false;
 	}
 	int iSerialVersion = V_atoi(szMutSeq);
-
-	if (iSerialVersion <= NEOXHAIR_SERIAL_PREALPHA_V8_2 || iSerialVersion > NEOXHAIR_SERIAL_CURRENT)
+	if (iSerialVersion == 0)
 	{
-		Assert(false);
+		iSerialVersion = NEOXHAIR_SERIAL_CURRENT;
+	}
+	else if (iSerialVersion <= NEOXHAIR_SERIAL_PREALPHA_V8_2 || iSerialVersion > NEOXHAIR_SERIAL_CURRENT)
+	{
 		return false;
 	}
 
