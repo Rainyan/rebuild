@@ -376,52 +376,105 @@ void TestSerialEmpty()
 
 void TestDeserialRLE()
 {
-	char szMutStr[NEO_XHAIR_SEQMAX] = "5;4^";
 	{
-		SerialContext ctx = {
-			.eSerialMode = SERIALMODE_DESERIALIZE,
-			.iSeqSize = V_strlen(szMutStr),
-		};
-		TEST_COMPARE_INT(5, SerialInt(5, 4, COMPMODE_EQUALS, szMutStr, &ctx));
-		TEST_COMPARE_INT(2, SerialInt(2, 2, COMPMODE_EQUALS, szMutStr, &ctx));
-		TEST_COMPARE_INT(true, SerialBool(true, true, COMPMODE_EQUALS, szMutStr, &ctx));
-		TEST_COMPARE_FLT(12.24f, SerialFloat(12.24f, 12.24f, COMPMODE_EQUALS, szMutStr, &ctx), 0.001f);
-		TEST_COMPARE_INT(-5, SerialInt(-5, -5, COMPMODE_EQUALS, szMutStr, &ctx));
+		constexpr auto ver = NEOXHAIR_SERIAL_ALPHA_V29;
+		char szMutStr[NEO_XHAIR_SEQMAX] = "5;4^";
+		{
+			SerialContext ctx = {
+				.eSerialMode = SERIALMODE_DESERIALIZE,
+				.iSeqSize = V_strlen(szMutStr),
+			};
+			TEST_COMPARE_INT(5, SerialInt(5, 4, COMPMODE_EQUALS, szMutStr, &ctx, 0, 0, ver));
+			TEST_COMPARE_INT(2, SerialInt(2, 2, COMPMODE_EQUALS, szMutStr, &ctx, 0, 0, ver));
+			TEST_COMPARE_INT(true, SerialBool(true, true, COMPMODE_EQUALS, szMutStr, &ctx, ver));
+			TEST_COMPARE_FLT(12.24f, SerialFloat(12.24f, 12.24f, COMPMODE_EQUALS, szMutStr, &ctx, 0, 0, ver), 0.001f);
+			TEST_COMPARE_INT(-5, SerialInt(-5, -5, COMPMODE_EQUALS, szMutStr, &ctx, 0, 0, ver));
+		}
+		{
+			V_strcpy_safe(szMutStr, ";4^0;3^12;23;;;2;3^");
+			SerialContext ctx = {
+				.eSerialMode = SERIALMODE_DESERIALIZE,
+				.iSeqSize = V_strlen(szMutStr),
+			};
+			// ;4^ (5 segments) use CompVal
+			TEST_COMPARE_INT(4, SerialInt(0, 4, COMPMODE_EQUALS, szMutStr, &ctx, 0, 0, ver));
+			TEST_COMPARE_INT(2, SerialInt(0, 2, COMPMODE_EQUALS, szMutStr, &ctx, 0, 0, ver));
+			TEST_COMPARE_INT(true, SerialBool(false, true, COMPMODE_EQUALS, szMutStr, &ctx, ver));
+			TEST_COMPARE_FLT(12.24f, SerialFloat(0.0f, 12.24f, COMPMODE_EQUALS, szMutStr, &ctx, 0, 0, ver), 0.001f);
+			TEST_COMPARE_INT(-5, SerialInt(0, -5, COMPMODE_EQUALS, szMutStr, &ctx, 0, 0, ver));
+			// 0; use serial value
+			TEST_COMPARE_INT(0, SerialInt(0, -5, COMPMODE_EQUALS, szMutStr, &ctx, 0, 0, ver));
+			// 3^ use CompVal
+			TEST_COMPARE_INT(1, SerialInt(0, 1, COMPMODE_EQUALS, szMutStr, &ctx, 0, 0, ver));
+			TEST_COMPARE_INT(2, SerialInt(0, 2, COMPMODE_EQUALS, szMutStr, &ctx, 0, 0, ver));
+			TEST_COMPARE_INT(3, SerialInt(0, 3, COMPMODE_EQUALS, szMutStr, &ctx, 0, 0, ver));
+			// 12;23; use serial value
+			TEST_COMPARE_INT(12, SerialInt(0, 0, COMPMODE_EQUALS, szMutStr, &ctx, 0, 0, ver));
+			TEST_COMPARE_INT(23, SerialInt(0, 0, COMPMODE_EQUALS, szMutStr, &ctx, 0, 0, ver));
+			// ;; use CompVal
+			TEST_COMPARE_INT(1, SerialInt(0, 1, COMPMODE_EQUALS, szMutStr, &ctx, 0, 0, ver));
+			TEST_COMPARE_INT(5, SerialInt(0, 5, COMPMODE_EQUALS, szMutStr, &ctx, 0, 0, ver));
+			// 2; use serial value
+			TEST_COMPARE_INT(2, SerialInt(0, 9, COMPMODE_EQUALS, szMutStr, &ctx, 0, 0, ver));
+			// 3^ use CompVal
+			TEST_COMPARE_INT(9, SerialInt(0, 9, COMPMODE_EQUALS, szMutStr, &ctx, 0, 0, ver));
+			TEST_COMPARE_INT(8, SerialInt(0, 8, COMPMODE_EQUALS, szMutStr, &ctx, 0, 0, ver));
+			TEST_COMPARE_INT(7, SerialInt(0, 7, COMPMODE_EQUALS, szMutStr, &ctx, 0, 0, ver));
+			// Out of bounds - use CompVal
+			TEST_COMPARE_INT(9, SerialInt(8, 9, COMPMODE_EQUALS, szMutStr, &ctx, 0, 0, ver));
+			TEST_COMPARE_INT(10, SerialInt(9, 10, COMPMODE_EQUALS, szMutStr, &ctx, 0, 0, ver));
+			TEST_COMPARE_INT(11, SerialInt(10, 11, COMPMODE_EQUALS, szMutStr, &ctx, 0, 0, ver));
+		}
 	}
+
 	{
-		V_strcpy_safe(szMutStr, ";4^0;3^12;23;;;2;3^");
-		SerialContext ctx = {
-			.eSerialMode = SERIALMODE_DESERIALIZE,
-			.iSeqSize = V_strlen(szMutStr),
-		};
-		// ;4^ (5 segments) use CompVal
-		TEST_COMPARE_INT(4, SerialInt(0, 4, COMPMODE_EQUALS, szMutStr, &ctx));
-		TEST_COMPARE_INT(2, SerialInt(0, 2, COMPMODE_EQUALS, szMutStr, &ctx));
-		TEST_COMPARE_INT(true, SerialBool(false, true, COMPMODE_EQUALS, szMutStr, &ctx));
-		TEST_COMPARE_FLT(12.24f, SerialFloat(0.0f, 12.24f, COMPMODE_EQUALS, szMutStr, &ctx), 0.001f);
-		TEST_COMPARE_INT(-5, SerialInt(0, -5, COMPMODE_EQUALS, szMutStr, &ctx));
-		// 0; use serial value
-		TEST_COMPARE_INT(0, SerialInt(0, -5, COMPMODE_EQUALS, szMutStr, &ctx));
-		// 3^ use CompVal
-		TEST_COMPARE_INT(1, SerialInt(0, 1, COMPMODE_EQUALS, szMutStr, &ctx));
-		TEST_COMPARE_INT(2, SerialInt(0, 2, COMPMODE_EQUALS, szMutStr, &ctx));
-		TEST_COMPARE_INT(3, SerialInt(0, 3, COMPMODE_EQUALS, szMutStr, &ctx));
-		// 12;23; use serial value
-		TEST_COMPARE_INT(12, SerialInt(0, 0, COMPMODE_EQUALS, szMutStr, &ctx));
-		TEST_COMPARE_INT(23, SerialInt(0, 0, COMPMODE_EQUALS, szMutStr, &ctx));
-		// ;; use CompVal
-		TEST_COMPARE_INT(1, SerialInt(0, 1, COMPMODE_EQUALS, szMutStr, &ctx));
-		TEST_COMPARE_INT(5, SerialInt(0, 5, COMPMODE_EQUALS, szMutStr, &ctx));
-		// 2; use serial value
-		TEST_COMPARE_INT(2, SerialInt(0, 9, COMPMODE_EQUALS, szMutStr, &ctx));
-		// 3^ use CompVal
-		TEST_COMPARE_INT(9, SerialInt(0, 9, COMPMODE_EQUALS, szMutStr, &ctx));
-		TEST_COMPARE_INT(8, SerialInt(0, 8, COMPMODE_EQUALS, szMutStr, &ctx));
-		TEST_COMPARE_INT(7, SerialInt(0, 7, COMPMODE_EQUALS, szMutStr, &ctx));
-		// Out of bounds - use CompVal
-		TEST_COMPARE_INT(9, SerialInt(8, 9, COMPMODE_EQUALS, szMutStr, &ctx));
-		TEST_COMPARE_INT(10, SerialInt(9, 10, COMPMODE_EQUALS, szMutStr, &ctx));
-		TEST_COMPARE_INT(11, SerialInt(10, 11, COMPMODE_EQUALS, szMutStr, &ctx));
+		char szMutStr[NEO_XHAIR_SEQMAX] = "5,4^";
+		{
+			SerialContext ctx = {
+				.eSerialMode = SERIALMODE_DESERIALIZE,
+				.iSeqSize = V_strlen(szMutStr),
+			};
+			TEST_COMPARE_INT(5, SerialInt(5, 4, COMPMODE_EQUALS, szMutStr, &ctx));
+			TEST_COMPARE_INT(2, SerialInt(2, 2, COMPMODE_EQUALS, szMutStr, &ctx));
+			TEST_COMPARE_INT(true, SerialBool(true, true, COMPMODE_EQUALS, szMutStr, &ctx));
+			TEST_COMPARE_FLT(12.24f, SerialFloat(12.24f, 12.24f, COMPMODE_EQUALS, szMutStr, &ctx), 0.001f);
+			TEST_COMPARE_INT(-5, SerialInt(-5, -5, COMPMODE_EQUALS, szMutStr, &ctx));
+		}
+		{
+			V_strcpy_safe(szMutStr, ",4^0,3^12,23,,,2,3^");
+			SerialContext ctx = {
+				.eSerialMode = SERIALMODE_DESERIALIZE,
+				.iSeqSize = V_strlen(szMutStr),
+			};
+			// ;4^ (5 segments) use CompVal
+			TEST_COMPARE_INT(4, SerialInt(0, 4, COMPMODE_EQUALS, szMutStr, &ctx));
+			TEST_COMPARE_INT(2, SerialInt(0, 2, COMPMODE_EQUALS, szMutStr, &ctx));
+			TEST_COMPARE_INT(true, SerialBool(false, true, COMPMODE_EQUALS, szMutStr, &ctx));
+			TEST_COMPARE_FLT(12.24f, SerialFloat(0.0f, 12.24f, COMPMODE_EQUALS, szMutStr, &ctx), 0.001f);
+			TEST_COMPARE_INT(-5, SerialInt(0, -5, COMPMODE_EQUALS, szMutStr, &ctx));
+			// 0; use serial value
+			TEST_COMPARE_INT(0, SerialInt(0, -5, COMPMODE_EQUALS, szMutStr, &ctx));
+			// 3^ use CompVal
+			TEST_COMPARE_INT(1, SerialInt(0, 1, COMPMODE_EQUALS, szMutStr, &ctx));
+			TEST_COMPARE_INT(2, SerialInt(0, 2, COMPMODE_EQUALS, szMutStr, &ctx));
+			TEST_COMPARE_INT(3, SerialInt(0, 3, COMPMODE_EQUALS, szMutStr, &ctx));
+			// 12;23; use serial value
+			TEST_COMPARE_INT(12, SerialInt(0, 0, COMPMODE_EQUALS, szMutStr, &ctx));
+			TEST_COMPARE_INT(23, SerialInt(0, 0, COMPMODE_EQUALS, szMutStr, &ctx));
+			// ;; use CompVal
+			TEST_COMPARE_INT(1, SerialInt(0, 1, COMPMODE_EQUALS, szMutStr, &ctx));
+			TEST_COMPARE_INT(5, SerialInt(0, 5, COMPMODE_EQUALS, szMutStr, &ctx));
+			// 2; use serial value
+			TEST_COMPARE_INT(2, SerialInt(0, 9, COMPMODE_EQUALS, szMutStr, &ctx));
+			// 3^ use CompVal
+			TEST_COMPARE_INT(9, SerialInt(0, 9, COMPMODE_EQUALS, szMutStr, &ctx));
+			TEST_COMPARE_INT(8, SerialInt(0, 8, COMPMODE_EQUALS, szMutStr, &ctx));
+			TEST_COMPARE_INT(7, SerialInt(0, 7, COMPMODE_EQUALS, szMutStr, &ctx));
+			// Out of bounds - use CompVal
+			TEST_COMPARE_INT(9, SerialInt(8, 9, COMPMODE_EQUALS, szMutStr, &ctx));
+			TEST_COMPARE_INT(10, SerialInt(9, 10, COMPMODE_EQUALS, szMutStr, &ctx));
+			TEST_COMPARE_INT(11, SerialInt(10, 11, COMPMODE_EQUALS, szMutStr, &ctx));
+		}
 	}
 }
 
