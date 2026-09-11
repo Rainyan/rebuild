@@ -307,7 +307,7 @@ static bool ImportOrExportCrosshair(const ESerialMode eSerialMode, CrosshairInfo
 
 	if (iExportSerialVersion <= NEOXHAIR_SERIAL_PREALPHA_V8_2 || iExportSerialVersion > NEOXHAIR_SERIAL_CURRENT)
 	{
-		Assert(false);
+		// Unsupported serialization version or corrupted from first character
 		return false;
 	}
 
@@ -325,9 +325,9 @@ static bool ImportOrExportCrosshair(const ESerialMode eSerialMode, CrosshairInfo
 		iSerialVersion += pow(radix, iSeqSize - 2 - i) * digit;
 	}
 
-	if (iSerialVersion < NEOXHAIR_SERIAL_PREALPHA_V8_2 || iSerialVersion > NEOXHAIR_SERIAL_CURRENT)
+	if (iSerialVersion <= NEOXHAIR_SERIAL_PREALPHA_V8_2 || iSerialVersion > NEOXHAIR_SERIAL_CURRENT)
 	{
-		// Unsupported serialization version or corrupted from first character
+		Assert(false);
 		return false;
 	}
 
