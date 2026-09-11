@@ -431,7 +431,7 @@ void TestFailure_OutOfBoundStr_Under()
 	const CrosshairWepInfo *defChr = &xhairDef.wep[CROSSHAIR_WEP_DEFAULT];
 
 	CrosshairInfo xhairInfo = {};
-	TEST_COMPARE_INT(ImportCrosshair(&xhairInfo, "6,0,0,2,2,-1,0,3,2,4,1,6,5,"), true);
+	TEST_COMPARE_INT(ImportCrosshair(&xhairInfo, CURRENT_VER ",0,0,2,2,-1,0,3,2,4,1,6,5,"), true);
 	TEST_COMPARE_INT(xhairInfo.wepFlags, CROSSHAIR_WEP_FLAG_DEFAULT);
 	TEST_COMPARE_INT(xhairInfo.hipfireFlags, CROSSHAIR_HIPFIRECUSTOM_FLAG_NIL);
 
