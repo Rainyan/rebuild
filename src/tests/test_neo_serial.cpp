@@ -182,28 +182,56 @@ void TestDeserialFloat()
 
 void TestSerialFloat()
 {
-	char szMutStr[NEO_XHAIR_SEQMAX] = {};
-	SerialContext ctx = {
-		.eSerialMode = SERIALMODE_SERIALIZE,
-		.iSeqSize = NEO_XHAIR_SEQMAX,
-	};
-	float flVal = 0;
-	flVal = SerialFloat(0.0f, 0.0f, COMPMODE_IGNORE, szMutStr, &ctx);
-	TEST_COMPARE_STR(szMutStr, "0.000;");
-	flVal = SerialFloat(0.999f, 0.0f, COMPMODE_IGNORE, szMutStr, &ctx);
-	TEST_COMPARE_STR(szMutStr, "0.000;0.999;");
-	flVal = SerialFloat(1.0f, 0.0f, COMPMODE_IGNORE, szMutStr, &ctx);
-	TEST_COMPARE_STR(szMutStr, "0.000;0.999;1.000;");
-	flVal = SerialFloat(-1.0f, 0.0f, COMPMODE_IGNORE, szMutStr, &ctx);
-	TEST_COMPARE_STR(szMutStr, "0.000;0.999;1.000;-1.000;");
-	flVal = SerialFloat(-999.999f, 0.0f, COMPMODE_IGNORE, szMutStr, &ctx);
-	TEST_COMPARE_STR(szMutStr, "0.000;0.999;1.000;-1.000;-999.999;");
-	flVal = SerialFloat(999.99f, 0.0f, COMPMODE_IGNORE, szMutStr, &ctx);
-	TEST_COMPARE_STR(szMutStr, "0.000;0.999;1.000;-1.000;-999.999;999.990;");
-	flVal = SerialFloat(123.4567f, 0.0f, COMPMODE_IGNORE, szMutStr, &ctx);
-	TEST_COMPARE_STR(szMutStr, "0.000;0.999;1.000;-1.000;-999.999;999.990;123.457;");
-	flVal = SerialFloat(2, 0.0f, COMPMODE_IGNORE, szMutStr, &ctx);
-	TEST_COMPARE_STR(szMutStr, "0.000;0.999;1.000;-1.000;-999.999;999.990;123.457;2.000;");
+	{
+		char szMutStr[NEO_XHAIR_SEQMAX] = {};
+		SerialContext ctx = {
+			.eSerialMode = SERIALMODE_SERIALIZE,
+			.iSeqSize = NEO_XHAIR_SEQMAX,
+		};
+		constexpr auto ver = NEOXHAIR_SERIAL_ALPHA_V29;
+		float flVal = 0;
+		flVal = SerialFloat(0.0f, 0.0f, COMPMODE_IGNORE, szMutStr, &ctx, 0, 0, ver);
+		TEST_COMPARE_STR(szMutStr, "0.000;");
+		flVal = SerialFloat(0.999f, 0.0f, COMPMODE_IGNORE, szMutStr, &ctx, 0, 0, ver);
+		TEST_COMPARE_STR(szMutStr, "0.000;0.999;");
+		flVal = SerialFloat(1.0f, 0.0f, COMPMODE_IGNORE, szMutStr, &ctx, 0, 0, ver);
+		TEST_COMPARE_STR(szMutStr, "0.000;0.999;1.000;");
+		flVal = SerialFloat(-1.0f, 0.0f, COMPMODE_IGNORE, szMutStr, &ctx, 0, 0, ver);
+		TEST_COMPARE_STR(szMutStr, "0.000;0.999;1.000;-1.000;");
+		flVal = SerialFloat(-999.999f, 0.0f, COMPMODE_IGNORE, szMutStr, &ctx, 0, 0, ver);
+		TEST_COMPARE_STR(szMutStr, "0.000;0.999;1.000;-1.000;-999.999;");
+		flVal = SerialFloat(999.99f, 0.0f, COMPMODE_IGNORE, szMutStr, &ctx, 0, 0, ver);
+		TEST_COMPARE_STR(szMutStr, "0.000;0.999;1.000;-1.000;-999.999;999.990;");
+		flVal = SerialFloat(123.4567f, 0.0f, COMPMODE_IGNORE, szMutStr, &ctx, 0, 0, ver);
+		TEST_COMPARE_STR(szMutStr, "0.000;0.999;1.000;-1.000;-999.999;999.990;123.457;");
+		flVal = SerialFloat(2, 0.0f, COMPMODE_IGNORE, szMutStr, &ctx, 0, 0, ver);
+		TEST_COMPARE_STR(szMutStr, "0.000;0.999;1.000;-1.000;-999.999;999.990;123.457;2.000;");
+	}
+
+	{
+		char szMutStr[NEO_XHAIR_SEQMAX] = {};
+		SerialContext ctx = {
+			.eSerialMode = SERIALMODE_SERIALIZE,
+			.iSeqSize = NEO_XHAIR_SEQMAX,
+		};
+		float flVal = 0;
+		flVal = SerialFloat(0.0f, 0.0f, COMPMODE_IGNORE, szMutStr, &ctx);
+		TEST_COMPARE_STR(szMutStr, "0.000,");
+		flVal = SerialFloat(0.999f, 0.0f, COMPMODE_IGNORE, szMutStr, &ctx);
+		TEST_COMPARE_STR(szMutStr, "0.000,0.999,");
+		flVal = SerialFloat(1.0f, 0.0f, COMPMODE_IGNORE, szMutStr, &ctx);
+		TEST_COMPARE_STR(szMutStr, "0.000,0.999,1.000,");
+		flVal = SerialFloat(-1.0f, 0.0f, COMPMODE_IGNORE, szMutStr, &ctx);
+		TEST_COMPARE_STR(szMutStr, "0.000,0.999,1.000,-1.000,");
+		flVal = SerialFloat(-999.999f, 0.0f, COMPMODE_IGNORE, szMutStr, &ctx);
+		TEST_COMPARE_STR(szMutStr, "0.000,0.999,1.000,-1.000,-999.999,");
+		flVal = SerialFloat(999.99f, 0.0f, COMPMODE_IGNORE, szMutStr, &ctx);
+		TEST_COMPARE_STR(szMutStr, "0.000,0.999,1.000,-1.000,-999.999,999.990,");
+		flVal = SerialFloat(123.4567f, 0.0f, COMPMODE_IGNORE, szMutStr, &ctx);
+		TEST_COMPARE_STR(szMutStr, "0.000,0.999,1.000,-1.000,-999.999,999.990,123.457,");
+		flVal = SerialFloat(2, 0.0f, COMPMODE_IGNORE, szMutStr, &ctx);
+		TEST_COMPARE_STR(szMutStr, "0.000,0.999,1.000,-1.000,-999.999,999.990,123.457,2.000,");
+	}
 }
 
 void TestDeserialMixture()
