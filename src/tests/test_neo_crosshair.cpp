@@ -224,7 +224,7 @@ void TestDeserial_V5_ALPHA_V28()
 
 	ExportCrosshair(&xhairInfo, szExportSeq, NEOXHAIR_SERIAL_ALPHA_V28);
 	TEST_COMPARE_STR(szExportSeq, SERIAL_TEST_STR);
-	TEST_COMPARE_INT(true, ValidateCrosshairSerial(szExportSeq));
+	TEST_COMPARE_INT(true, ValidateCrosshairSerial(szExportSeq, NEOXHAIR_SERIAL_ALPHA_V28));
 }
 
 void TestDeserial_V6_ALPHA_V29()
