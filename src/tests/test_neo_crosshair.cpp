@@ -930,7 +930,7 @@ void TestFeature_Flags_OldBool_ToplineOff()
 
 	ExportCrosshair(&xhairInfo, szExportSeq, NEOXHAIR_SERIAL_ALPHA_V22);
 	TEST_COMPARE_STR(szExportSeq, SERIAL_TEST_STR);
-	TEST_COMPARE_INT(true, ValidateCrosshairSerial(szExportSeq));
+	TEST_COMPARE_INT(true, ValidateCrosshairSerial(szExportSeq, NEOXHAIR_SERIAL_ALPHA_V22));
 }
 
 void TestFeature_Flags_OldBool_SepDotColor()
