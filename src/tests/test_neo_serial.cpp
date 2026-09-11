@@ -236,16 +236,32 @@ void TestSerialFloat()
 
 void TestDeserialMixture()
 {
-	char szMutStr[NEO_XHAIR_SEQMAX] = "1;0;12.24;-5;-2;";
-	SerialContext ctx = {
-		.eSerialMode = SERIALMODE_DESERIALIZE,
-		.iSeqSize = V_strlen(szMutStr),
-	};
-	TEST_COMPARE_INT(1, SerialInt(0, 0, COMPMODE_IGNORE, szMutStr, &ctx));
-	TEST_COMPARE_INT(false, SerialBool(false, false, COMPMODE_IGNORE, szMutStr, &ctx));
-	TEST_COMPARE_FLT(12.24f, SerialFloat(0.0f, 0.0f, COMPMODE_IGNORE, szMutStr, &ctx), 0.001f);
-	TEST_COMPARE_INT(-5, SerialInt(0, 0, COMPMODE_IGNORE, szMutStr, &ctx));
-	TEST_COMPARE_INT(true, SerialBool(false, false, COMPMODE_IGNORE, szMutStr, &ctx));
+	{
+		char szMutStr[NEO_XHAIR_SEQMAX] = "1;0;12.24;-5;-2;";
+		SerialContext ctx = {
+			.eSerialMode = SERIALMODE_DESERIALIZE,
+			.iSeqSize = V_strlen(szMutStr),
+		};
+		constexpr auto ver = NEOXHAIR_SERIAL_ALPHA_V29;
+		TEST_COMPARE_INT(1, SerialInt(0, 0, COMPMODE_IGNORE, szMutStr, &ctx, 0, 0, ver));
+		TEST_COMPARE_INT(false, SerialBool(false, false, COMPMODE_IGNORE, szMutStr, &ctx, ver));
+		TEST_COMPARE_FLT(12.24f, SerialFloat(0.0f, 0.0f, COMPMODE_IGNORE, szMutStr, &ctx, 0, 0, ver), 0.001f);
+		TEST_COMPARE_INT(-5, SerialInt(0, 0, COMPMODE_IGNORE, szMutStr, &ctx, 0, 0, ver));
+		TEST_COMPARE_INT(true, SerialBool(false, false, COMPMODE_IGNORE, szMutStr, &ctx, ver));
+	}
+
+	{
+		char szMutStr[NEO_XHAIR_SEQMAX] = "1,0,12.24,-5,-2,";
+		SerialContext ctx = {
+			.eSerialMode = SERIALMODE_DESERIALIZE,
+			.iSeqSize = V_strlen(szMutStr),
+		};
+		TEST_COMPARE_INT(1, SerialInt(0, 0, COMPMODE_IGNORE, szMutStr, &ctx));
+		TEST_COMPARE_INT(false, SerialBool(false, false, COMPMODE_IGNORE, szMutStr, &ctx));
+		TEST_COMPARE_FLT(12.24f, SerialFloat(0.0f, 0.0f, COMPMODE_IGNORE, szMutStr, &ctx), 0.001f);
+		TEST_COMPARE_INT(-5, SerialInt(0, 0, COMPMODE_IGNORE, szMutStr, &ctx));
+		TEST_COMPARE_INT(true, SerialBool(false, false, COMPMODE_IGNORE, szMutStr, &ctx));
+	}
 }
 
 void TestSerialMixture()
