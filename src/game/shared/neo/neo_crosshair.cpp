@@ -424,16 +424,16 @@ static bool ImportOrExportCrosshair(const ESerialMode eSerialMode, CrosshairInfo
 				}
 				if (bNotCompact || (crh->flags & CROSSHAIR_FLAG_SEPERATEDOTCOLOR))
 				{
-					crh->colorDot.SetRawColor(SerialInt(crh->colorDot.GetRawColor(), cmpCrh->colorDot.GetRawColor(), eCompMode, szMutSeq, &ctx, eSerialVer));
+					crh->colorDot.SetRawColor(SerialInt(crh->colorDot.GetRawColor(), cmpCrh->colorDot.GetRawColor(), eCompMode, szMutSeq, &ctx, 0, 0, eSerialVer));
 					if (bNotCompact || crh->iOutline > 0)
 					{
-						crh->colorDotOutline.SetRawColor(SerialInt(crh->colorDotOutline.GetRawColor(), cmpCrh->colorDotOutline.GetRawColor(), eCompMode, szMutSeq, &ctx, eSerialVer));
+						crh->colorDotOutline.SetRawColor(SerialInt(crh->colorDotOutline.GetRawColor(), cmpCrh->colorDotOutline.GetRawColor(), eCompMode, szMutSeq, &ctx, 0, 0, eSerialVer));
 					}
 				}
 			}
 			if (bNotCompact || crh->iOutline > 0)
 			{
-				crh->colorOutline.SetRawColor(SerialInt(crh->colorOutline.GetRawColor(), cmpCrh->colorOutline.GetRawColor(), eCompMode, szMutSeq, &ctx, eSerialVer));
+				crh->colorOutline.SetRawColor(SerialInt(crh->colorOutline.GetRawColor(), cmpCrh->colorOutline.GetRawColor(), eCompMode, szMutSeq, &ctx, 0, 0, eSerialVer));
 			}
 		}
 	}
