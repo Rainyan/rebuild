@@ -112,18 +112,36 @@ void TestDeserialBool()
 
 void TestSerialBool()
 {
-	char szMutStr[NEO_XHAIR_SEQMAX] = {};
-	SerialContext ctx = {
-		.eSerialMode = SERIALMODE_SERIALIZE,
-		.iSeqSize = NEO_XHAIR_SEQMAX,
-	};
-	bool bVal = 0;
-	bVal = SerialBool(false, false, COMPMODE_IGNORE, szMutStr, &ctx);
-	TEST_COMPARE_STR(szMutStr, "0;");
-	bVal = SerialBool(true, false, COMPMODE_IGNORE, szMutStr, &ctx);
-	TEST_COMPARE_STR(szMutStr, "0;1;");
-	bVal = SerialBool(false, false, COMPMODE_IGNORE, szMutStr, &ctx);
-	TEST_COMPARE_STR(szMutStr, "0;1;0;");
+	{
+		char szMutStr[NEO_XHAIR_SEQMAX] = {};
+		SerialContext ctx = {
+			.eSerialMode = SERIALMODE_SERIALIZE,
+			.iSeqSize = NEO_XHAIR_SEQMAX,
+		};
+		constexpr auto ver = NEOXHAIR_SERIAL_ALPHA_V29;
+		bool bVal = 0;
+		bVal = SerialBool(false, false, COMPMODE_IGNORE, szMutStr, &ctx, ver);
+		TEST_COMPARE_STR(szMutStr, "0;");
+		bVal = SerialBool(true, false, COMPMODE_IGNORE, szMutStr, &ctx, ver);
+		TEST_COMPARE_STR(szMutStr, "0;1;");
+		bVal = SerialBool(false, false, COMPMODE_IGNORE, szMutStr, &ctx, ver);
+		TEST_COMPARE_STR(szMutStr, "0;1;0;");
+	}
+
+	{
+		char szMutStr[NEO_XHAIR_SEQMAX] = {};
+		SerialContext ctx = {
+			.eSerialMode = SERIALMODE_SERIALIZE,
+			.iSeqSize = NEO_XHAIR_SEQMAX,
+		};
+		bool bVal = 0;
+		bVal = SerialBool(false, false, COMPMODE_IGNORE, szMutStr, &ctx);
+		TEST_COMPARE_STR(szMutStr, "0,");
+		bVal = SerialBool(true, false, COMPMODE_IGNORE, szMutStr, &ctx);
+		TEST_COMPARE_STR(szMutStr, "0,1,");
+		bVal = SerialBool(false, false, COMPMODE_IGNORE, szMutStr, &ctx);
+		TEST_COMPARE_STR(szMutStr, "0,1,0,");
+	}
 }
 
 void TestDeserialFloat()
