@@ -266,24 +266,48 @@ void TestDeserialMixture()
 
 void TestSerialMixture()
 {
-	char szMutStr[NEO_XHAIR_SEQMAX] = {};
-	SerialContext ctx = {
-		.eSerialMode = SERIALMODE_SERIALIZE,
-		.iSeqSize = NEO_XHAIR_SEQMAX,
-	};
-	bool bVal = 0;
-	int iVal = 0;
-	float flVal = 0;
-	iVal = SerialInt(1, 0, COMPMODE_IGNORE, szMutStr, &ctx);
-	TEST_COMPARE_STR(szMutStr, "1;");
-	bVal = SerialBool(false, false, COMPMODE_IGNORE, szMutStr, &ctx);
-	TEST_COMPARE_STR(szMutStr, "1;0;");
-	flVal = SerialFloat(12.24f, 0.0f, COMPMODE_IGNORE, szMutStr, &ctx);
-	TEST_COMPARE_STR(szMutStr, "1;0;12.240;");
-	iVal = SerialInt(-5, 0, COMPMODE_IGNORE, szMutStr, &ctx);
-	TEST_COMPARE_STR(szMutStr, "1;0;12.240;-5;");
-	bVal = SerialBool(true, false, COMPMODE_IGNORE, szMutStr, &ctx);
-	TEST_COMPARE_STR(szMutStr, "1;0;12.240;-5;1;");
+	{
+		char szMutStr[NEO_XHAIR_SEQMAX] = {};
+		SerialContext ctx = {
+			.eSerialMode = SERIALMODE_SERIALIZE,
+			.iSeqSize = NEO_XHAIR_SEQMAX,
+		};
+		constexpr auto ver = NEOXHAIR_SERIAL_ALPHA_V29;
+		bool bVal = 0;
+		int iVal = 0;
+		float flVal = 0;
+		iVal = SerialInt(1, 0, COMPMODE_IGNORE, szMutStr, &ctx, 0, 0, ver);
+		TEST_COMPARE_STR(szMutStr, "1;");
+		bVal = SerialBool(false, false, COMPMODE_IGNORE, szMutStr, &ctx, ver);
+		TEST_COMPARE_STR(szMutStr, "1;0;");
+		flVal = SerialFloat(12.24f, 0.0f, COMPMODE_IGNORE, szMutStr, &ctx, 0, 0, ver);
+		TEST_COMPARE_STR(szMutStr, "1;0;12.240;");
+		iVal = SerialInt(-5, 0, COMPMODE_IGNORE, szMutStr, &ctx, 0, 0, ver);
+		TEST_COMPARE_STR(szMutStr, "1;0;12.240;-5;");
+		bVal = SerialBool(true, false, COMPMODE_IGNORE, szMutStr, &ctx, ver);
+		TEST_COMPARE_STR(szMutStr, "1;0;12.240;-5;1;");
+	}
+
+	{
+		char szMutStr[NEO_XHAIR_SEQMAX] = {};
+		SerialContext ctx = {
+			.eSerialMode = SERIALMODE_SERIALIZE,
+			.iSeqSize = NEO_XHAIR_SEQMAX,
+		};
+		bool bVal = 0;
+		int iVal = 0;
+		float flVal = 0;
+		iVal = SerialInt(1, 0, COMPMODE_IGNORE, szMutStr, &ctx);
+		TEST_COMPARE_STR(szMutStr, "1,");
+		bVal = SerialBool(false, false, COMPMODE_IGNORE, szMutStr, &ctx);
+		TEST_COMPARE_STR(szMutStr, "1,0,");
+		flVal = SerialFloat(12.24f, 0.0f, COMPMODE_IGNORE, szMutStr, &ctx);
+		TEST_COMPARE_STR(szMutStr, "1,0,12.240,");
+		iVal = SerialInt(-5, 0, COMPMODE_IGNORE, szMutStr, &ctx);
+		TEST_COMPARE_STR(szMutStr, "1,0,12.240,-5,");
+		bVal = SerialBool(true, false, COMPMODE_IGNORE, szMutStr, &ctx);
+		TEST_COMPARE_STR(szMutStr, "1,0,12.240,-5,1,");
+	}
 }
 
 void TestDeserialEmpty()
