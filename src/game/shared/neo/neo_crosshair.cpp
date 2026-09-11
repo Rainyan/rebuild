@@ -311,26 +311,11 @@ static bool ImportOrExportCrosshair(const ESerialMode eSerialMode, CrosshairInfo
 		return false;
 	}
 
-	if (iSeqSize <= 0)
+	int iSerialVersion = SerialInt(iExportSerialVersion, NEOXHAIR_SERIAL_CURRENT,
+		COMPMODE_IGNORE, szMutSeq, &ctx, 0, 0, static_cast<NeoXHairSerial>(iExportSerialVersion));
+	if (iSerialVersion != iExportSerialVersion)
 	{
-		return false;
-	}
-	int iSerialVersion = V_atoi(szMutSeq);
-	if (iSerialVersion == 0)
-	{
-		iSerialVersion = NEOXHAIR_SERIAL_CURRENT;
-	}
-	else if (iSerialVersion <= NEOXHAIR_SERIAL_PREALPHA_V8_2 || iSerialVersion > NEOXHAIR_SERIAL_CURRENT)
-	{
-		return false;
-	}
-
-	iSerialVersion = SerialInt(iExportSerialVersion, NEOXHAIR_SERIAL_CURRENT,
-		COMPMODE_IGNORE, szMutSeq, &ctx, 0, 0, static_cast<NeoXHairSerial>(iSerialVersion));
-
-	if (iSerialVersion < NEOXHAIR_SERIAL_PREALPHA_V8_2 || iSerialVersion > NEOXHAIR_SERIAL_CURRENT)
-	{
-		// Unsupported serialization version or corrupted from first character
+		Assert(false);
 		return false;
 	}
 
