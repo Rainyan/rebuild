@@ -4,17 +4,33 @@
 
 void TestDeserialInt()
 {
-	char szMutStr[NEO_XHAIR_SEQMAX] = "0;2;30;20000;-5;-2;";
-	SerialContext ctx = {
-		.eSerialMode = SERIALMODE_DESERIALIZE,
-		.iSeqSize = V_strlen(szMutStr),
-	};
-	TEST_COMPARE_INT(0, SerialInt(0, 0, COMPMODE_IGNORE, szMutStr, &ctx));
-	TEST_COMPARE_INT(2, SerialInt(0, 0, COMPMODE_IGNORE, szMutStr, &ctx));
-	TEST_COMPARE_INT(10, SerialInt(0, 0, COMPMODE_IGNORE, szMutStr, &ctx, 0, 10));
-	TEST_COMPARE_INT(20000, SerialInt(0, 0, COMPMODE_IGNORE, szMutStr, &ctx));
-	TEST_COMPARE_INT(-5, SerialInt(0, 0, COMPMODE_IGNORE, szMutStr, &ctx));
-	TEST_COMPARE_INT(1, SerialInt(0, 0, COMPMODE_IGNORE, szMutStr, &ctx, 1, 2));
+	{
+		char szMutStr_Legacy[NEO_XHAIR_SEQMAX] = "0;2;30;20000;-5;-2;";
+		SerialContext ctx = {
+			.eSerialMode = SERIALMODE_DESERIALIZE,
+			.iSeqSize = V_strlen(szMutStr_Legacy),
+		};
+		TEST_COMPARE_INT(0, SerialInt(0, 0, COMPMODE_IGNORE, szMutStr_Legacy, &ctx, 0, 0, NEOXHAIR_SERIAL_ALPHA_V29));
+		TEST_COMPARE_INT(2, SerialInt(0, 0, COMPMODE_IGNORE, szMutStr_Legacy, &ctx, 0, 0, NEOXHAIR_SERIAL_ALPHA_V29));
+		TEST_COMPARE_INT(10, SerialInt(0, 0, COMPMODE_IGNORE, szMutStr_Legacy, &ctx, 0, 10, NEOXHAIR_SERIAL_ALPHA_V29));
+		TEST_COMPARE_INT(20000, SerialInt(0, 0, COMPMODE_IGNORE, szMutStr_Legacy, &ctx, 0, 0, NEOXHAIR_SERIAL_ALPHA_V29));
+		TEST_COMPARE_INT(-5, SerialInt(0, 0, COMPMODE_IGNORE, szMutStr_Legacy, &ctx, 0, 0, NEOXHAIR_SERIAL_ALPHA_V29));
+		TEST_COMPARE_INT(1, SerialInt(0, 0, COMPMODE_IGNORE, szMutStr_Legacy, &ctx, 1, 2, NEOXHAIR_SERIAL_ALPHA_V29));
+	}
+
+	{
+		char szMutStr[NEO_XHAIR_SEQMAX] = "0,2,30,20000,-5,-2,";
+		SerialContext ctx = {
+			.eSerialMode = SERIALMODE_DESERIALIZE,
+			.iSeqSize = V_strlen(szMutStr),
+		};
+		TEST_COMPARE_INT(0, SerialInt(0, 0, COMPMODE_IGNORE, szMutStr, &ctx));
+		TEST_COMPARE_INT(2, SerialInt(0, 0, COMPMODE_IGNORE, szMutStr, &ctx));
+		TEST_COMPARE_INT(10, SerialInt(0, 0, COMPMODE_IGNORE, szMutStr, &ctx, 0, 10));
+		TEST_COMPARE_INT(20000, SerialInt(0, 0, COMPMODE_IGNORE, szMutStr, &ctx));
+		TEST_COMPARE_INT(-5, SerialInt(0, 0, COMPMODE_IGNORE, szMutStr, &ctx));
+		TEST_COMPARE_INT(1, SerialInt(0, 0, COMPMODE_IGNORE, szMutStr, &ctx, 1, 2));
+	}
 }
 
 void TestSerialInt()
