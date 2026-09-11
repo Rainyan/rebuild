@@ -24,7 +24,7 @@ void TestDeserial_V2_ALPHA_V17()
 	const CrosshairWepInfo *defChr = &xhairDef.wep[CROSSHAIR_WEP_DEFAULT];
 
 	CrosshairInfo xhairInfo = {};
-	const bool bValid = ImportCrosshair(&xhairInfo, SERIAL_TEST_STR);
+	const bool bValid = ImportCrosshair(&xhairInfo, SERIAL_TEST_STR, nullptr, NEOXHAIR_SERIAL_ALPHA_V17);
 	TEST_COMPARE_INT(bValid, true);
 	TEST_COMPARE_INT(xhairInfo.wepFlags, CROSSHAIR_WEP_FLAG_DEFAULT);
 	TEST_COMPARE_INT(xhairInfo.hipfireFlags, CROSSHAIR_HIPFIRECUSTOM_FLAG_NIL);
@@ -79,7 +79,7 @@ void TestDeserial_V3_ALPHA_V19()
 	const CrosshairWepInfo *defChr = &xhairDef.wep[CROSSHAIR_WEP_DEFAULT];
 
 	CrosshairInfo xhairInfo = {};
-	const bool bValid = ImportCrosshair(&xhairInfo, SERIAL_TEST_STR);
+	const bool bValid = ImportCrosshair(&xhairInfo, SERIAL_TEST_STR, nullptr, NEOXHAIR_SERIAL_ALPHA_V19);
 	TEST_COMPARE_INT(bValid, true);
 	TEST_COMPARE_INT(xhairInfo.wepFlags, CROSSHAIR_WEP_FLAG_DEFAULT);
 	TEST_COMPARE_INT(xhairInfo.hipfireFlags, CROSSHAIR_HIPFIRECUSTOM_FLAG_NIL);
@@ -130,7 +130,7 @@ void TestDeserial_V4_ALPHA_V22()
 	static const char SERIAL_TEST_LATEST_STR[] = CURRENT_VER ",0,0,2,2,-1,0,3,2,4,1,6,5,7,1,-16776961,-16711936,-65536,";
 
 	CrosshairInfo xhairInfo = {};
-	const bool bValid = ImportCrosshair(&xhairInfo, SERIAL_TEST_STR);
+	const bool bValid = ImportCrosshair(&xhairInfo, SERIAL_TEST_STR, nullptr, NEOXHAIR_SERIAL_ALPHA_V22);
 	TEST_COMPARE_INT(bValid, true);
 	TEST_COMPARE_INT(xhairInfo.wepFlags, CROSSHAIR_WEP_FLAG_DEFAULT);
 	TEST_COMPARE_INT(xhairInfo.hipfireFlags, CROSSHAIR_HIPFIRECUSTOM_FLAG_NIL);
@@ -183,7 +183,7 @@ void TestDeserial_V5_ALPHA_V28()
 	const CrosshairWepInfo *defChr = &xhairDef.wep[CROSSHAIR_WEP_DEFAULT];
 
 	CrosshairInfo xhairInfo = {};
-	const bool bValid = ImportCrosshair(&xhairInfo, SERIAL_TEST_STR);
+	const bool bValid = ImportCrosshair(&xhairInfo, SERIAL_TEST_STR, nullptr, NEOXHAIR_SERIAL_ALPHA_V28);
 	TEST_COMPARE_INT(bValid, true);
 	TEST_COMPARE_INT(xhairInfo.wepFlags, CROSSHAIR_WEP_FLAG_DEFAULT);
 	TEST_COMPARE_INT(xhairInfo.hipfireFlags, CROSSHAIR_HIPFIRECUSTOM_FLAG_NIL);
@@ -240,7 +240,7 @@ void TestDeserial_V6_ALPHA_V29()
 	const CrosshairWepInfo *defChr = &xhairDef.wep[CROSSHAIR_WEP_DEFAULT];
 
 	CrosshairInfo xhairInfo = {};
-	const bool bValid = ImportCrosshair(&xhairInfo, SERIAL_TEST_STR);
+	const bool bValid = ImportCrosshair(&xhairInfo, SERIAL_TEST_STR, nullptr, NEOXHAIR_SERIAL_ALPHA_V29);
 	TEST_COMPARE_INT(bValid, true);
 	TEST_COMPARE_INT(xhairInfo.wepFlags, CROSSHAIR_WEP_FLAG_DEFAULT);
 	TEST_COMPARE_INT(xhairInfo.hipfireFlags, CROSSHAIR_HIPFIRECUSTOM_FLAG_NIL);
@@ -287,7 +287,7 @@ void TestDeserial_V6_ALPHA_V29()
 void TestDeserial_V7_ALPHA_V35()
 {
 	// V7 - Changes segment-end token from ';' to ','
-	static const char SERIAL_TEST_STR[] = "6;0;0;2;2;-1;0;3;2;4;1;6;5;7;1;-16776961;-16711936;-65536;";
+	static const char SERIAL_TEST_STR[] = "7,0,0,2,2,-1,0,3,2,4,1,6,5,7,1,-16776961,-16711936,-65536,";
 	static const char SERIAL_TEST_LATEST_STR[] = CURRENT_VER ",0,0,2,2,-1,0,3,2,4,1,6,5,7,1,-16776961,-16711936,-65536,";
 
 	CrosshairInfo xhairDef = {};
@@ -295,7 +295,7 @@ void TestDeserial_V7_ALPHA_V35()
 	const CrosshairWepInfo* defChr = &xhairDef.wep[CROSSHAIR_WEP_DEFAULT];
 
 	CrosshairInfo xhairInfo = {};
-	const bool bValid = ImportCrosshair(&xhairInfo, SERIAL_TEST_STR);
+	const bool bValid = ImportCrosshair(&xhairInfo, SERIAL_TEST_STR, nullptr, NEOXHAIR_SERIAL_ALPHA_V35);
 	TEST_COMPARE_INT(bValid, true);
 	TEST_COMPARE_INT(xhairInfo.wepFlags, CROSSHAIR_WEP_FLAG_DEFAULT);
 	TEST_COMPARE_INT(xhairInfo.hipfireFlags, CROSSHAIR_HIPFIRECUSTOM_FLAG_NIL);

@@ -204,7 +204,8 @@ bool ValidateCrosshairSerial(const char *pszSequence);
 // paeHipfireOpts - Maps NeoUI RingBox int <-> NeoCrosshairWepFlags + NeoCrosshairHipfireCustomFlags
 // Only for import as export must have directly already set by flags and managed within UI
 bool ImportCrosshair(CrosshairInfo *xhairInfo, const char *pszSequence,
-		EHipfireOpt (*paeHipfireOpts)[CROSSHAIR_WEP__TOTAL] = nullptr);
+		EHipfireOpt (*paeHipfireOpts)[CROSSHAIR_WEP__TOTAL] = nullptr,
+		NeoXHairSerial ver = NEOXHAIR_SERIAL_CURRENT);
 
 // iExportSerialVersion is only used for unit testing purpose, for usage in-game
 // it should always be exporting to NEOXHAIR_SERIAL_CURRENT
