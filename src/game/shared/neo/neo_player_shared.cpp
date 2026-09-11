@@ -931,9 +931,12 @@ void CNEO_Player::FixupOnGroundFlag()
 	Assert((GetFlags() & FL_ONGROUND) == IsServer());
 #ifdef GAME_DLL
 	const Vector& start = GetAbsOrigin();
-	Vector end(start.x, start.y, start.z - 64);
+	const Vector& maxs = GetPlayerMaxs();
+	const Vector& mins = GetPlayerMins();
+	float playerHeight = maxs.z - mins.z;
+	Vector end(start.x, start.y, start.z - playerHeight);
 	Ray_t ray;
-	ray.Init(start, end, GetPlayerMins(), GetPlayerMaxs());
+	ray.Init(start, end, mins, maxs);
 	trace_t	trace;
 	UTIL_TraceRay(ray, MASK_PLAYERSOLID, this, COLLISION_GROUP_PLAYER_MOVEMENT, &trace);
 	const bool foundGround = trace.DidHit();
