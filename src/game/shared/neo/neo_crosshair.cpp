@@ -448,7 +448,7 @@ static bool ImportOrExportCrosshair(const ESerialMode eSerialMode, CrosshairInfo
 	return true;
 }
 
-bool ValidateCrosshairSerial(const char *pszSequence)
+bool ValidateCrosshairSerial(const char *pszSequence, NeoXHairSerial ver)
 {
 	const int iSeqSize = V_strlen(pszSequence);
 	if (iSeqSize <= 0 || iSeqSize >= NEO_XHAIR_SEQMAX)
@@ -462,7 +462,7 @@ bool ValidateCrosshairSerial(const char *pszSequence)
 	CrosshairInfo xhairInfo = {};
 	ResetCrosshairToDefault(&xhairInfo, nullptr);
 
-	return ImportOrExportCrosshair(SERIALMODE_CHECK, &xhairInfo, szMutSeq, iSeqSize, NEOXHAIR_SERIAL_CURRENT);
+	return ImportOrExportCrosshair(SERIALMODE_CHECK, &xhairInfo, szMutSeq, iSeqSize, ver);
 }
 
 bool ImportCrosshair(CrosshairInfo *xhairInfo, const char *pszSequence,

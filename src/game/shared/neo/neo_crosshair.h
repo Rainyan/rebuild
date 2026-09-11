@@ -198,7 +198,7 @@ void DefaultCrosshairSerial(char (&szSequence)[NEO_XHAIR_SEQMAX]);
 
 int UseCrosshairIndexFor(const CrosshairInfo *xhairInfo, const int iXHairWep, bool *pbHide = nullptr);
 
-bool ValidateCrosshairSerial(const char *pszSequence);
+bool ValidateCrosshairSerial(const char* pszSequence, NeoXHairSerial ver = NEOXHAIR_SERIAL_CURRENT);
 
 // NEO NOTE (nullsystem): (*&)[NUM] enforces array size
 // paeHipfireOpts - Maps NeoUI RingBox int <-> NeoCrosshairWepFlags + NeoCrosshairHipfireCustomFlags

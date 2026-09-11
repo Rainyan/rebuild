@@ -969,8 +969,9 @@ void TestFeature_Flags_OldBool_SepDotColor()
 
 void TestFeature_Flags_OldBool_ToplineOff_SepDotColor()
 {
-	// Convert v4 (non-compressed, 2 bools) to v7+ (flagged)
+	// Convert v4 (non-compressed, 2 bools) to v6 and v7+ (flagged)
 	static const char SERIAL_TEST_STR[] = "4;2;-1;0;3;0.000;2;4;1;6;0;5;7;1;1;-16776961;-16711936;-65536;";
+	static const char SERIAL_TEST_V6_STR[] = "6" ";0;0;3;2;-1;0;3;2;4;1;6;5;7;1;-16776961;-16711936;-65536;";
 	static const char SERIAL_TEST_LATEST_STR[] = CURRENT_VER ",0,0,3,2,-1,0,3,2,4,1,6,5,7,1,-16776961,-16711936,-65536,";
 
 	CrosshairInfo xhairInfo = {};
@@ -996,9 +997,13 @@ void TestFeature_Flags_OldBool_ToplineOff_SepDotColor()
 	TEST_COMPARE_STR(szExportSeq, SERIAL_TEST_LATEST_STR);
 	TEST_COMPARE_INT(true, ValidateCrosshairSerial(szExportSeq));
 
+	ExportCrosshair(&xhairInfo, szExportSeq, NEOXHAIR_SERIAL_ALPHA_V29);
+	TEST_COMPARE_STR(szExportSeq, SERIAL_TEST_V6_STR);
+	TEST_COMPARE_INT(true, ValidateCrosshairSerial(szExportSeq, NEOXHAIR_SERIAL_ALPHA_V29));
+
 	ExportCrosshair(&xhairInfo, szExportSeq, NEOXHAIR_SERIAL_ALPHA_V22);
 	TEST_COMPARE_STR(szExportSeq, SERIAL_TEST_STR);
-	TEST_COMPARE_INT(true, ValidateCrosshairSerial(szExportSeq));
+	TEST_COMPARE_INT(true, ValidateCrosshairSerial(szExportSeq, NEOXHAIR_SERIAL_ALPHA_V22));
 }
 
 void TestFeature_Flags_Topline_Off()
