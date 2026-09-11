@@ -311,13 +311,35 @@ static bool ImportOrExportCrosshair(const ESerialMode eSerialMode, CrosshairInfo
 		return false;
 	}
 
-	int iSerialVersion = SerialInt(iExportSerialVersion, NEOXHAIR_SERIAL_CURRENT,
-		COMPMODE_IGNORE, szMutSeq, &ctx, 0, 0, static_cast<NeoXHairSerial>(iExportSerialVersion));
-	if (iSerialVersion <= NEOXHAIR_SERIAL_PREALPHA_V8_2 || iSerialVersion > NEOXHAIR_SERIAL_CURRENT)
+	int iSerialVersion = 0;
+	for (int i = 0; i < iSeqSize; ++i)
+	{
+		char c = szMutSeq[i];
+		constexpr char asciiZero = 48;
+		constexpr char asciiNine = asciiZero + 9;
+		bool isDigit = (c >= asciiZero) && (c <= asciiNine);
+		if (!isDigit)
+			break;
+		char digit = c - asciiZero;
+		constexpr char radix = 10;
+		iSerialVersion += pow(radix, iSeqSize - 2 - i) * digit;
+	}
+
+	if (iSerialVersion < NEOXHAIR_SERIAL_PREALPHA_V8_2 || iSerialVersion > NEOXHAIR_SERIAL_CURRENT)
 	{
 		// Unsupported serialization version or corrupted from first character
 		return false;
 	}
+
+	iSerialVersion = SerialInt(iExportSerialVersion, NEOXHAIR_SERIAL_CURRENT,
+		COMPMODE_IGNORE, szMutSeq, &ctx, 0, 0, static_cast<NeoXHairSerial>(iSerialVersion));
+
+	if (iSerialVersion < NEOXHAIR_SERIAL_PREALPHA_V8_2 || iSerialVersion > NEOXHAIR_SERIAL_CURRENT)
+	{
+		// Unsupported serialization version or corrupted from first character
+		return false;
+	}
+
 	const auto eSerialVer = static_cast<NeoXHairSerial>(iSerialVersion);
 
 	// v28 onwards cuts out segments if unused
