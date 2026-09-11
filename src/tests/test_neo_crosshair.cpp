@@ -445,7 +445,7 @@ void TestFailure_OutOfBoundStr_Under()
 void TestFailure_OutOfBoundStr_Over()
 {
 	CrosshairInfo xhairInfo = {};
-	TEST_COMPARE_INT(ImportCrosshair(&xhairInfo, "6,0,0,2,2,-1,0,3,2,4,1,6,5,7,1,-16776961,-16711936,-65536,12,24,48,"), true);
+	TEST_COMPARE_INT(true, ImportCrosshair(&xhairInfo, CURRENT_VER ",0,0,2,2,-1,0,3,2,4,1,6,5,7,1,-16776961,-16711936,-65536,12,24,48,"));
 	TEST_COMPARE_INT(xhairInfo.wepFlags, CROSSHAIR_WEP_FLAG_DEFAULT);
 	TEST_COMPARE_INT(xhairInfo.hipfireFlags, CROSSHAIR_HIPFIRECUSTOM_FLAG_NIL);
 
@@ -459,7 +459,7 @@ void TestFailure_OutOfBoundStr_Over()
 	TEST_COMPARE_INT(chr->colorOutline.GetRawColor(), Color(0, 0, 255, 255).GetRawColor());
 
 	// Because both wepFlags and hipfireFlags are 0, the rest should really just be
-	// copies of the default segments, nothing will pick up the "12;24;48;" at the end
+	// copies of the default segments, nothing will pick up the "12,24,48," at the end
 	TEST_COMPARE_INT(0, V_memcmp(chr, &xhairInfo.wep[CROSSHAIR_WEP_SECONDARY], sizeof(CrosshairWepInfo)));
 	TEST_COMPARE_INT(0, V_memcmp(chr, &xhairInfo.wep[CROSSHAIR_WEP_SHOTGUN], sizeof(CrosshairWepInfo)));
 	TEST_COMPARE_INT(0, V_memcmp(chr, &xhairInfo.wep[CROSSHAIR_WEP_DEFAULT_HIPFIRE], sizeof(CrosshairWepInfo)));
