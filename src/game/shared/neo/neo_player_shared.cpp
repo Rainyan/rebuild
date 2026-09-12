@@ -903,8 +903,7 @@ bool CNEO_Player::IsAllowedToSuperJump()
 	if (IsAirborne())
 		return false;
 
-	constexpr auto parityHighestAllowedWaterLevel = WL_Feet;
-	if (GetWaterLevel() > parityHighestAllowedWaterLevel)
+	if (GetWaterLevel() > WL_Feet)
 		return false;
 
 	// Only superjump if we have a reasonable jump direction in mind
