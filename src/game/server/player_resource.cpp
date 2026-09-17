@@ -36,6 +36,7 @@ IMPLEMENT_SERVERCLASS_ST_NOBASE(CPlayerResource, DT_PlayerResource)
 	SendPropArray3(SENDINFO_ARRAY3(m_bAfk), SendPropInt(SENDINFO_ARRAY(m_bAfk), 1, SPROP_UNSIGNED)),
 	SendPropArray3(SENDINFO_ARRAY3(m_szNeoCrosshair), SendPropString(SENDINFO_ARRAY(m_szNeoCrosshair), 0, SendProxy_StringT_To_String)),
 	SendPropArray3(SENDINFO_ARRAY3(m_bReady), SendPropInt(SENDINFO_ARRAY(m_bReady), 1, SPROP_UNSIGNED)),
+	SendPropArray3(SENDINFO_ARRAY3(m_bWantsNeoName), SendPropInt(SENDINFO_ARRAY(m_bWantsNeoName), 1, SPROP_UNSIGNED)),
 #endif
 	SendPropArray3( SENDINFO_ARRAY3(m_iScore), SendPropInt( SENDINFO_ARRAY(m_iScore), 12 ) ),
 	SendPropArray3( SENDINFO_ARRAY3(m_iDeaths), SendPropInt( SENDINFO_ARRAY(m_iDeaths), 12 ) ),
@@ -104,6 +105,7 @@ void CPlayerResource::Init( int iIndex )
 	m_bAfk.Set(iIndex, 0);
 	m_szNeoCrosshair.Set(iIndex, m_szNeoNameNone);
 	m_bReady.Set(iIndex, 0);
+	m_bWantsNeoName.Set(iIndex, 0);
 #endif
 	m_iPing.Set( iIndex, 0 );
 	m_iScore.Set( iIndex, 0 );
@@ -199,6 +201,7 @@ void CPlayerResource::UpdatePlayerData( void )
 				m_szNeoCrosshair.Set(i, strt);
 			}
 			m_bReady.Set(i, NEORules() ? NEORules()->ReadyUpPlayerIsReady(neoPlayer) : false);
+			m_bWantsNeoName.Set(i, neoPlayer->m_bClientWantNeoName);
 #endif
 			UpdateConnectedPlayer( i, pPlayer );
 		}

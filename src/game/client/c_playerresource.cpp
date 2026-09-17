@@ -36,6 +36,7 @@ IMPLEMENT_CLIENTCLASS_DT_NOBASE(C_PlayerResource, DT_PlayerResource, CPlayerReso
 	RecvPropArray3(RECVINFO_ARRAY(m_bAfk), RecvPropInt(RECVINFO(m_bAfk[0]))),
 	RecvPropArray3(RECVINFO_ARRAY(m_szNeoCrosshair), RecvPropString(RECVINFO(m_szNeoCrosshair[0]))),
 	RecvPropArray3(RECVINFO_ARRAY(m_bReady), RecvPropInt(RECVINFO(m_bReady[0]))),
+	RecvPropArray3(RECVINFO_ARRAY(m_bWantsNeoName), RecvPropBool(RECVINFO(m_bWantsNeoName[0]))),
 #endif
 	RecvPropArray3( RECVINFO_ARRAY(m_iScore), RecvPropInt( RECVINFO(m_iScore[0]))),
 	RecvPropArray3( RECVINFO_ARRAY(m_iDeaths), RecvPropInt( RECVINFO(m_iDeaths[0]))),
@@ -63,6 +64,7 @@ BEGIN_PREDICTION_DATA( C_PlayerResource )
 	DEFINE_PRED_ARRAY(m_bAfk, FIELD_BOOLEAN, MAX_PLAYERS_ARRAY_SAFE, FTYPEDESC_PRIVATE),
 	DEFINE_PRED_ARRAY(m_szNeoCrosshair, FIELD_STRING, MAX_PLAYERS_ARRAY_SAFE, FTYPEDESC_PRIVATE),
 	DEFINE_PRED_ARRAY(m_bReady, FIELD_BOOLEAN, MAX_PLAYERS_ARRAY_SAFE, FTYPEDESC_PRIVATE),
+	DEFINE_PRED_ARRAY(m_bWantsNeoName, FIELD_BOOLEAN, MAX_PLAYERS_ARRAY_SAFE, FTYPEDESC_PRIVATE),
 #endif
 	DEFINE_PRED_ARRAY( m_iScore, FIELD_INTEGER, MAX_PLAYERS_ARRAY_SAFE, FTYPEDESC_PRIVATE ),
 	DEFINE_PRED_ARRAY( m_iDeaths, FIELD_INTEGER, MAX_PLAYERS_ARRAY_SAFE, FTYPEDESC_PRIVATE ),
@@ -103,6 +105,7 @@ C_PlayerResource::C_PlayerResource()
 	memset(m_bAfk, 0, sizeof(m_bAfk));
 	memset(m_szNeoCrosshair, 0, sizeof(m_szNeoCrosshair));
 	memset(m_bReady, 0, sizeof(m_bReady));
+	memset(m_bWantsNeoName, 0, sizeof(m_bWantsNeoName));
 #endif
 	memset( m_iScore, 0, sizeof( m_iScore ) );
 	memset( m_iDeaths, 0, sizeof( m_iDeaths ) );
@@ -269,6 +272,11 @@ bool C_PlayerResource::IsReady(int iIndex)
 {
 	return m_bReady[iIndex];
 }
+
+bool C_PlayerResource::WantsNeoName(int iIndex) const
+{
+	return m_bWantsNeoName[iIndex];
+}
 #endif
 
 bool C_PlayerResource::IsAlive(int iIndex )
@@ -344,6 +352,11 @@ int C_PlayerResource::GetStar(int index)
 	}
 
 	return m_iStar[index];
+}
+
+const char* C_PlayerResource::GetNeoName(int index) const
+{
+	return m_szNeoName[index];
 }
 
 int C_PlayerResource::GetFrags(int index_ )

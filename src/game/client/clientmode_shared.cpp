@@ -1214,7 +1214,23 @@ void ClientModeShared::FireGameEvent( IGameEvent *event )
 		if ( !hudChat )
 			return;
 
+#ifdef NEO
+		const char* pszPlayerName = nullptr;
+		if (g_PR)
+		{
+			int iPlayerIndex = engine->GetPlayerForUserID(event->GetInt("userid"));
+			if (g_PR->WantsNeoName(iPlayerIndex))
+			{
+				pszPlayerName = g_PR->GetNeoName(iPlayerIndex);
+			}
+		}
+		if (!pszPlayerName)
+		{
+			pszPlayerName = event->GetString("name");
+		}
+#else
 		const char* pszPlayerName = event->GetString( "name" );
+#endif
 
 		if ( PlayerNameNotSetYet( pszPlayerName ) )
 			return;

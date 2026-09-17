@@ -59,12 +59,14 @@ public : // IGameResources interface
 	virtual int		GetXP(int index);
 	virtual int     GetClass(int index);
 	virtual int		GetStar(int index);
+	const char *GetNeoName(int index) const;
 	const char *GetClanTag(int index);
 	virtual int		GetMaxHealth(int index);
 	virtual int		GetDisplayedHealth(int index, int mode);
 	virtual bool	IsAfk(int index);
 	const char *GetNeoCrosshair(int index);
 	bool			IsReady(int index);
+	bool			WantsNeoName(int index) const;
 #endif
 	virtual int		GetFrags( int index );
 	virtual int		GetHealth( int index );
@@ -96,6 +98,7 @@ protected:
 	bool	m_bAfk[MAX_PLAYERS_ARRAY_SAFE];
 	char	m_szNeoCrosshair[MAX_PLAYERS_ARRAY_SAFE][NEO_XHAIR_SEQMAX];
 	bool	m_bReady[MAX_PLAYERS_ARRAY_SAFE];
+	bool	m_bWantsNeoName[MAX_PLAYERS_ARRAY_SAFE];
 #endif
 	int		m_iScore[MAX_PLAYERS_ARRAY_SAFE];
 	int		m_iDeaths[MAX_PLAYERS_ARRAY_SAFE];

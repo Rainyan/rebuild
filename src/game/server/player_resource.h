@@ -60,6 +60,7 @@ protected:
 	CNetworkArray(int, m_bAfk, MAX_PLAYERS_ARRAY_SAFE);
 	CNetworkArray(string_t, m_szNeoCrosshair, MAX_PLAYERS_ARRAY_SAFE);
 	CNetworkArray(int, m_bReady, MAX_PLAYERS_ARRAY_SAFE);
+	CNetworkArray(int, m_bWantsNeoName, MAX_PLAYERS_ARRAY_SAFE);
 #endif
 	CNetworkArray( int, m_iScore, MAX_PLAYERS_ARRAY_SAFE );
 	CNetworkArray( int, m_iDeaths, MAX_PLAYERS_ARRAY_SAFE );
