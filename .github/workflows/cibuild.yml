@@ -18,7 +18,8 @@ jobs:
     steps:
       - id: use-unity
         run: |
-          echo "value=${{ case(github.event.review.state != 'approved' || github.event.review.author_association != 'MEMBER', 'ON', 'OFF') }}" >> "$GITHUB_OUTPUT"
+          echo "value=${{ case(github.event.review.state != 'approved' ||
+            github.event.review.author_association != 'MEMBER', 'ON', 'OFF') }}" >> "$GITHUB_OUTPUT"
 
   linux-build:
     name: ${{ matrix.platform.display_name }} ${{ matrix.preset_build_type.display_name }}
