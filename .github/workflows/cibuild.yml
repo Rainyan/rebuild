@@ -79,6 +79,8 @@ jobs:
 
     - name: CMake configure libraries build
       working-directory: ${{ env.source_dir }}
+      env:
+        USE_UNITY_BUILD: ${{ github.event.review.state != 'approved' }}
       run: >
         cmake
         --preset ${{ env.preset_name }}
@@ -91,8 +93,8 @@ jobs:
         -DNEO_INSTALL_LAUNCHER=ON
         -DNEO_INSTALL_RESOURCES=OFF
         -DNEO_EXTRA_ASSETS_ALT_PATH=${{ github.workspace }}/neoAssets
-        -DNEO_UNITY_BUILD_CLIENT_SERVER=${{ case(github.event.review.state == 'approved', OFF, ON }}
-        -DNEO_UNITY_BUILD_OTHERS=${{ case(github.event.review.state == 'approved', OFF, ON }}
+        -DNEO_UNITY_BUILD_CLIENT_SERVER=${{ env.USE_UNITY_BUILD }}
+        -DNEO_UNITY_BUILD_OTHERS=${{ env.USE_UNITY_BUILD }}
 
     - name: CMake libraries build
       working-directory: ${{ env.source_dir }}
