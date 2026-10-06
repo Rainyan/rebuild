@@ -6,12 +6,25 @@ on:
   workflow_dispatch:
   release:
     types: [published]
+  pull_request_review:
+    types: [submitted]
 
 jobs:
+  unity-cfg:
+    name: Determine whether to use unity build
+    runs-on: ubuntu-latest
+    outputs:
+      use-unity: ${{ steps.use-unity.outputs.value }}
+    steps:
+      - id: use-unity
+        run: |
+          echo "value=${{ case(github.event.review.state != 'approved' || github.event.review.author_association != 'MEMBER', 'ON', 'OFF') }}" >> "$GITHUB_OUTPUT"
+
   linux-build:
     name: ${{ matrix.platform.display_name }} ${{ matrix.preset_build_type.display_name }}
 
     runs-on: ${{ matrix.platform.os }}
+    needs: unity-cfg
 
     defaults:
       run:
@@ -32,6 +45,7 @@ jobs:
       image: 'registry.gitlab.steamos.cloud/steamrt/sniper/sdk:latest'
 
     steps:
+
       # Silence a git warning emitted from actions/checkout.
       # For context: https://git-scm.com/docs/git-init#Documentation/git-init.txt---initial-branchbranch-name
     - name: Set initial default branch name
@@ -77,6 +91,8 @@ jobs:
 
     - name: CMake configure libraries build
       working-directory: ${{ env.source_dir }}
+      env:
+        USE_UNITY: ${{ needs.unity-cfg.outputs.use-unity }}
       run: >
         cmake
         --preset ${{ env.preset_name }}
@@ -89,6 +105,8 @@ jobs:
         -DNEO_INSTALL_LAUNCHER=ON
         -DNEO_INSTALL_RESOURCES=OFF
         -DNEO_EXTRA_ASSETS_ALT_PATH=${{ github.workspace }}/neoAssets
+        -DNEO_UNITY_BUILD_CLIENT_SERVER=${{ env.USE_UNITY }}
+        -DNEO_UNITY_BUILD_OTHERS=${{ env.USE_UNITY }}
 
     - name: CMake libraries build
       working-directory: ${{ env.source_dir }}
@@ -189,6 +207,7 @@ jobs:
     name: ${{ matrix.platform.display_name }} ${{ matrix.preset_build_type.display_name }}
 
     runs-on: ${{ matrix.platform.os }}
+    needs: unity-cfg
 
     defaults:
       run:
@@ -249,6 +268,8 @@ jobs:
 
     - name: CMake configure libraries build
       working-directory: ${{ env.source_dir }}
+      env:
+        USE_UNITY: ${{ needs.unity-cfg.outputs.use-unity }}
       run: >
         cmake
         --preset ${{ env.preset_name }}
@@ -261,6 +282,8 @@ jobs:
         -DNEO_INSTALL_LAUNCHER=ON
         -DNEO_INSTALL_RESOURCES=OFF
         -DNEO_EXTRA_ASSETS_ALT_PATH=${{ github.workspace }}/neoAssets
+        -DNEO_UNITY_BUILD_CLIENT_SERVER=${{ env.USE_UNITY }}
+        -DNEO_UNITY_BUILD_OTHERS=${{ env.USE_UNITY }}
 
     - name: CMake libraries build
       working-directory: ${{ env.source_dir }}
