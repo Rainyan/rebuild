@@ -18,9 +18,18 @@ jobs:
     outputs:
       approval: ${{ steps.info.outputs.approval }}
     steps:
-      - id: info
-        run: |
-          echo "approval=$(gh pr view ${{ github.event.pull_request.id }} --json reviewDecision)" >> "$GITHUB_OUTPUT"
+      # Silence a git warning emitted from actions/checkout.
+      # For context: https://git-scm.com/docs/git-init#Documentation/git-init.txt---initial-branchbranch-name
+    - name: Set initial default branch name
+      run: git config --global init.defaultBranch master
+
+    - uses: actions/checkout@v7
+      with:
+        fetch-depth: 0
+    
+    - id: info
+      run: |
+        echo "approval=$(gh pr view ${{ github.event.pull_request.id }} --json reviewDecision)" >> "$GITHUB_OUTPUT"
 
   linux-build:
     name: ${{ matrix.platform.display_name }} ${{ matrix.preset_build_type.display_name }}
