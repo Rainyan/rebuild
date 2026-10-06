@@ -671,8 +671,6 @@ if(NEO_EXTRA_ASSETS)
 
         FetchContent_MakeAvailable(neo_assets)
 
-	message(STATUS "!!!!! path 1: ${neo_assets_SOURCE_DIR}")
-	message(STATUS "!!!!! path 2: ${{neo_assets_SOURCE_DIR}}")
         execute_process(
             COMMAND ${CMAKE_COMMAND} -E copy_directory
                 "${neo_assets_SOURCE_DIR}/neo"
