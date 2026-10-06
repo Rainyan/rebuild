@@ -10,22 +10,21 @@ on:
     types: [submitted]
 
 jobs:
-  unity-cfg:
-    name: Determine whether to use unity build
+  pr:
+    name: Whether PR is approved
     runs-on: ubuntu-latest
     outputs:
-      use-unity: ${{ steps.use-unity.outputs.value }}
+      approval: ${{ steps.info.outputs.approval }}
     steps:
-      - id: use-unity
+      - id: info
         run: |
-          echo "value=${{ case(github.event.review.state != 'approved' ||
-            github.event.review.author_association != 'MEMBER', 'ON', 'OFF') }}" >> "$GITHUB_OUTPUT"
+          echo "approval=$(gh pr view ${{ github.event.pull_request.id }} --json reviewDecision)" >> "$GITHUB_OUTPUT"
 
   linux-build:
     name: ${{ matrix.platform.display_name }} ${{ matrix.preset_build_type.display_name }}
 
     runs-on: ${{ matrix.platform.os }}
-    needs: unity-cfg
+    needs: pr
 
     defaults:
       run:
@@ -93,7 +92,7 @@ jobs:
     - name: CMake configure libraries build
       working-directory: ${{ env.source_dir }}
       env:
-        USE_UNITY: ${{ needs.unity-cfg.outputs.use-unity }}
+        USE_UNITY: ${{ fromJson(needs.pr.outputs.approval).reviewDecision }}
       run: >
         cmake
         --preset ${{ env.preset_name }}
@@ -208,7 +207,7 @@ jobs:
     name: ${{ matrix.platform.display_name }} ${{ matrix.preset_build_type.display_name }}
 
     runs-on: ${{ matrix.platform.os }}
-    needs: unity-cfg
+    needs: pr
 
     defaults:
       run:
@@ -270,7 +269,7 @@ jobs:
     - name: CMake configure libraries build
       working-directory: ${{ env.source_dir }}
       env:
-        USE_UNITY: ${{ needs.unity-cfg.outputs.use-unity }}
+        USE_UNITY: ${{ fromJson(needs.pr.outputs.approval).reviewDecision }}
       run: >
         cmake
         --preset ${{ env.preset_name }}
