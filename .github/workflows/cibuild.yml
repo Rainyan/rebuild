@@ -6,6 +6,8 @@ on:
   workflow_dispatch:
   release:
     types: [published]
+  pull_request_review:
+    types: [submitted]
 
 jobs:
   linux-build:
@@ -89,6 +91,8 @@ jobs:
         -DNEO_INSTALL_LAUNCHER=ON
         -DNEO_INSTALL_RESOURCES=OFF
         -DNEO_EXTRA_ASSETS_ALT_PATH=${{ github.workspace }}/neoAssets
+        -DNEO_UNITY_BUILD_CLIENT_SERVER=${{ case(github.event.review.state == 'approved', 'ON', 'OFF' }}
+        -DNEO_UNITY_BUILD_OTHERS=${{ case(github.event.review.state == 'approved', 'ON', 'OFF' }}
 
     - name: CMake libraries build
       working-directory: ${{ env.source_dir }}
