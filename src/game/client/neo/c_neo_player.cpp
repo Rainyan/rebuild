@@ -2010,13 +2010,19 @@ void C_NEO_Player::PlayerUse()
 	if ( ! ((m_nButtons | m_afButtonPressed | m_afButtonReleased) & IN_USE) )
 		return;
 
+	CBaseEntity* pUseEnt;
+
+	// Player use handling
 	if ( (m_afButtonPressed & IN_USE) && prediction->IsFirstTimePredicted() && !GetUseEntity())
 	{
-		if (C_NEO_Player* pTargetPlayer = PlayerUseTraceLine())
+		pUseEnt = PlayerUseTraceLine();
+		if (pUseEnt)
 		{
+			Assert(pUseEnt->IsPlayer());
 			m_Local.m_nOldButtons |= IN_USE;
 			m_afButtonPressed &= ~IN_USE;
-			engine->ExecuteClientCmd(VarArgs("useplayer %i", pTargetPlayer->entindex()));
+			engine->ExecuteClientCmd(VarArgs("useplayer %i", pUseEnt->entindex()));
+			return;
 		}
 	}
 }
