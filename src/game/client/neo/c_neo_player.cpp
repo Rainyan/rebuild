@@ -1555,6 +1555,13 @@ void C_NEO_Player::Weapon_Drop(C_NEOBaseCombatWeapon *pWeapon)
 {
 	m_bIneligibleForLoadoutPick = true;
 
+#ifndef NO_ENTITY_PREDICTION
+	if (!prediction->InPrediction())
+#endif
+	{
+		pWeapon->m_bInReload = false;
+	}
+
 	if (pWeapon->GetNeoWepBits() & NEO_WEP_SUPA7)
 	{
 		assert_cast<C_WeaponSupa7*>(pWeapon)->ClearDelayedInputs();
