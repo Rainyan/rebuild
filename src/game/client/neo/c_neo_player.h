@@ -18,6 +18,7 @@ class C_NEO_Player;
 class C_NEO_Player;
 class C_NEOPredictedViewModel;
 class INEOPlayerAnimState;
+class IHandleEntity;
 
 inline C_NEO_Player* ToNEOPlayer(C_BaseEntity* pEntity);
 
@@ -196,12 +197,18 @@ public:
 #ifdef GLOWS_ENABLE
 	void UpdateGlowEffects(int iNewTeam);
 #endif // GLOWS_ENABLE
-	C_NEO_Player* PlayerUseTraceLine();
+	inline C_NEO_Player* PlayerUseTraceLine()
+	{
+		// MASK_SHOT_HULL to match friendly fire warning trace
+		return ToNEOPlayer(FindUseTraceLine(MASK_SHOT_HULL, this, COLLISION_GROUP_NONE));
+	}
 	virtual void PlayerUse() override;
 	
 	bool ValidTakeoverTargetFor(CNEO_Player* pPlayerTakingOver);
 
 private:
+	CBaseEntity* FindUseTraceLine(unsigned int mask, const IHandleEntity* ignore, int collisionGroup);
+
 	char m_sNameWithTakeoverContextProcessingBuffer[MAX_PLAYER_NAME_LENGTH];
 	void CheckAimButtons();
 	void CheckThermOpticButtons();

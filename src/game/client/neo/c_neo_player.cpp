@@ -1965,7 +1965,7 @@ const char* C_NEO_Player::GetPlayerNameWithTakeoverContext(int player_index)
     return base_name;
 }
 
-C_NEO_Player* C_NEO_Player::PlayerUseTraceLine()
+CBaseEntity* C_NEO_Player::FindUseTraceLine(unsigned int mask, const IHandleEntity* ignore, int collisionGroup)
 {
 	// Select player under cursor
 	Vector eyePos = EyePosition();
@@ -1975,11 +1975,11 @@ C_NEO_Player* C_NEO_Player::PlayerUseTraceLine()
 
 	// MASK_SHOT_HULL to match friendly fire warning trace
 	trace_t tr;
-	UTIL_TraceLine( eyePos, traceEnd, MASK_SHOT_HULL, this, COLLISION_GROUP_NONE, &tr );
-	
-	if (tr.DidHit() && tr.m_pEnt)
+	UTIL_TraceLine(eyePos, traceEnd, mask, ignore, collisionGroup, &tr);
+
+	if (tr.DidHit())
 	{
-		return ToNEOPlayer(tr.m_pEnt);
+		return tr.m_pEnt;
 	}
 	return nullptr;
 }
