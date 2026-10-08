@@ -15,8 +15,11 @@ class C_NEO_Player;
 #define NEO_THERMAL_MODEL_MATERIAL "dev/thermal_model"
 #define NEO_MOTION_MODEL_MATERIAL "dev/motion_model"
 
+class C_NEO_Player;
 class C_NEOPredictedViewModel;
 class INEOPlayerAnimState;
+
+inline C_NEO_Player* ToNEOPlayer(C_BaseEntity* pEntity);
 
 class C_NEO_Player : public C_HL2MP_Player
 {
@@ -279,10 +282,7 @@ inline C_NEO_Player *ToNEOPlayer(C_BaseEntity *pEntity)
 	{
 		return NULL;
 	}
-#if _DEBUG
-	Assert(dynamic_cast<C_NEO_Player*>(pEntity));
-#endif
-	return static_cast<C_NEO_Player*>(pEntity);
+	return assert_cast<C_NEO_Player*>(pEntity);
 }
 
 extern ConVar cl_drawhud_quickinfo;
