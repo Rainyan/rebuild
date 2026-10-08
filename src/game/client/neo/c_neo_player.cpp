@@ -2006,8 +2006,6 @@ bool C_NEO_Player::IsUseableEntity( CBaseEntity *pEntity, unsigned int requiredC
 
 void C_NEO_Player::PlayerUse()
 {
-	BaseClass::PlayerUse();
-	
 	// Was use pressed or released?
 	if ( ! ((m_nButtons | m_afButtonPressed | m_afButtonReleased) & IN_USE) )
 		return;

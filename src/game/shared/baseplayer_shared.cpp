@@ -1331,6 +1331,10 @@ CBaseEntity *CBasePlayer::FindUseEntity()
 //-----------------------------------------------------------------------------
 void CBasePlayer::PlayerUse ( void )
 {
+#ifdef NEO
+	// remove or adjust this assert as needed; currently never expecting to reach here
+	Assert(!"Unexpected BaseClass entry");
+#endif
 #ifdef GAME_DLL
 	// Was use pressed or released?
 	if ( ! ((m_nButtons | m_afButtonPressed | m_afButtonReleased) & IN_USE) )
