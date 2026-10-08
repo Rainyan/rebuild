@@ -1395,7 +1395,11 @@ void CNEOBaseCombatWeapon::SetPickupTouch(void)
 
 #ifdef GAME_DLL
 void CNEOBaseCombatWeapon::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value)
+#else
+void CNEOBaseCombatWeapon::Use(CBaseEntity* pActivator)
+#endif
 {
+#ifdef GAME_DLL
 	m_OnPlayerUse.FireOutput( pActivator, pCaller );
 
 	if (m_pfnTouch)
@@ -1417,8 +1421,25 @@ void CNEOBaseCombatWeapon::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, US
 	}
 
 	// Calling BaseClass::Use will pick the weapon up without waiting for the touch cooldown, don't see anything important there that we need to do that we aren't doing here
-}
+#else
+	if (CNEO_Player* pNeoPlayer = ToNEOPlayer(pActivator);
+		pNeoPlayer && CanBePickedUpByClass(pNeoPlayer->GetClass()))
+	{
+		if (auto* pActiveWep = assert_cast<CNEOBaseCombatWeapon*>(pNeoPlayer->GetActiveWeapon()))
+		{
+			const int activeSlot = pActiveWep->GetSlot();
+			if (activeSlot == GetSlot())
+			{
+				pNeoPlayer->Weapon_Drop(pActiveWep);
+				if (GetOwner() == pNeoPlayer)
+				{
+					pNeoPlayer->Weapon_Switch(this);
+				}
+			}
+		}
+	}
 #endif
+}
 
 const char *CNEOBaseCombatWeapon::GetDeathIcon(const CNEOBaseCombatWeapon *pNeoWep,
 		const EDeathIconType eType, bool isGrenade, bool isRemoteDetpack)

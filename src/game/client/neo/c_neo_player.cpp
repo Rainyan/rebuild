@@ -2025,6 +2025,19 @@ void C_NEO_Player::PlayerUse()
 			return;
 		}
 	}
+
+	// Weapon use handling
+	pUseEnt = FindUseEntity();
+	if (pUseEnt && pUseEnt->IsBaseCombatWeapon())
+	{
+		const int caps = pUseEnt->ObjectCaps();
+		if (((m_nButtons & IN_USE) && (caps & FCAP_CONTINUOUS_USE)) ||
+			((m_afButtonPressed & IN_USE) && (caps & (FCAP_IMPULSE_USE | FCAP_ONOFF_USE))) ||
+			((m_afButtonReleased & IN_USE) && (caps & FCAP_ONOFF_USE)))
+		{
+			assert_cast<CNEOBaseCombatWeapon*>(pUseEnt)->Use(this);
+		}
+	}
 }
 
 void C_NEO_Player::ClearLocalPlayerDmgReports()
