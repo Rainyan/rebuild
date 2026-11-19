@@ -16,6 +16,9 @@
 #include "client.h"
 #include "ai_initutils.h"
 #include "globalstate.h"
+#if defined(NEO) && defined(DBGFLAG_ASSERT)
+#include "NextBot.h"
+#endif
 #include "datacache/imdlcache.h"
 
 #ifdef HL2_DLL
@@ -200,11 +203,13 @@ public:
 			if ( m_simThinkList[i].nextThinkTick <= gpGlobals->tickcount )
 			{
 #if defined(NEO) && defined(DBGFLAG_ASSERT)
-				ConVarRef nb_stop("nb_stop");
-				Assert(nb_stop.IsValid());
-				if (!nb_stop.GetBool())
-#endif
+				if (!NextBotStop.GetBool())
+				{
+					Assert(m_simThinkList[i].nextThinkTick>=0);
+				}
+#else
 				Assert(m_simThinkList[i].nextThinkTick>=0);
+#endif
 				int entinfoIndex = m_simThinkList[i].entEntry;
 				const CEntInfo *pInfo = gEntList.GetEntInfoPtrByIndex( entinfoIndex );
 				pList[out] = (CBaseEntity *)pInfo->m_pEntity;
@@ -245,11 +250,13 @@ public:
 				{
 					m_simThinkList[m_entinfoIndex[index]].nextThinkTick = pEntity->GetFirstThinkTick();
 #if defined(NEO) && defined(DBGFLAG_ASSERT)
-					ConVarRef nb_stop("nb_stop");
-					Assert(nb_stop.IsValid());
-					if (!nb_stop.GetBool())
-#endif
+					if (!NextBotStop.GetBool())
+					{
+						Assert(m_simThinkList[m_entinfoIndex[index]].nextThinkTick>=0);
+					}
+#else
 					Assert(m_simThinkList[m_entinfoIndex[index]].nextThinkTick>=0);
+#endif
 				}
 			}
 			else
